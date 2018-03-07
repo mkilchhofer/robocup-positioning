@@ -14,13 +14,35 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class LidarService implements IScanListener, IScanOperator {
+public class LidarService {
     private IScan scanner;
     private final GatewayClient<LidarServiceContract> gatewayClient;
+    private static final Logger LOGGER = Logger.getLogger(LidarService.class.getName());
 
     public LidarService(URI mqttURI, String mqttClientName, String instanceName) throws MqttException, IOException {
         this.gatewayClient = new GatewayClient<LidarServiceContract>(mqttURI, mqttClientName, new LidarServiceContract(instanceName));
-        this.scanner = new TiM55x( this, (IScanOperator) this, "192.168.137.2", 2112);
+        IScanListener iScanListener = new IScanListener() {
+            @Override
+            public void newMeasData(IScanMeasData iScanMeasData) {
+                System.out.println(Arrays.toString(iScanMeasData.getAllDistanceValues()));
+                gatewayClient.readyToPublish(gatewayClient.getContract().EVENT_MEASUREMENT, new LidarMeasurementEvent(iScanMeasData.getAllDistanceValues()));
+            }
+        };
+
+        IScanOperator iScanOperator = new IScanOperator() {
+            @Override
+            public void newStateActice(State state) {
+                LOGGER.log(Level.INFO, "New laser state active: " + state);
+                gatewayClient.readyToPublish(gatewayClient.getContract().STATUS_STATE, new LidarState(state));
+            }
+
+            @Override
+            public void errorOccured() {
+                LOGGER.log(Level.SEVERE, "Laser ERROR");
+            }
+        };
+
+        this.scanner = new TiM55x(iScanListener, iScanOperator, "192.168.91.2", 2112);
         this.gatewayClient.connect();
         this.gatewayClient.subscribe(gatewayClient.getContract().INTENT + "/#", (topic, payload) -> {
             Set<LidarIntent> intents = gatewayClient.toMessageSet(payload, LidarIntent.class);
@@ -39,8 +61,6 @@ public class LidarService implements IScanListener, IScanOperator {
 
             });
         });
-        gatewayClient.readyToPublish(gatewayClient.getContract().STATUS_MODE, new LidarStatus(LidarMode.singleMeas));
-
     }
 
     private static String computerName;
@@ -49,7 +69,7 @@ public class LidarService implements IScanListener, IScanOperator {
         try {
             computerName = java.net.InetAddress.getLocalHost().getHostName();
         } catch (UnknownHostException ex) {
-            Logger.getLogger(LidarService.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.log(Level.SEVERE, null, ex);
             computerName = "undefined";
         }
     }
@@ -66,21 +86,5 @@ public class LidarService implements IScanListener, IScanOperator {
         LidarService lidarService = new LidarService(mqttURI, "Lidar" + computerName, computerName);
 
         System.in.read();
-    }
-
-    @Override
-    public void newMeasData(IScanMeasData iScanMeasData) {
-        System.out.println(Arrays.toString(iScanMeasData.getAllDistanceValues()));
-
-    }
-
-    @Override
-    public void newStateActice(State state) {
-        System.out.println("New laser state active: " + state);
-    }
-
-    @Override
-    public void errorOccured() {
-        System.out.println("Laser ERROR");
     }
 }
