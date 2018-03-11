@@ -1,4 +1,4 @@
-package service.sensor;
+package info.kilchhofer.bfh.lidar.service;
 
 import ch.quantasy.mqtt.gateway.client.message.AStatus;
 import laser.scanner.IScanOperator;

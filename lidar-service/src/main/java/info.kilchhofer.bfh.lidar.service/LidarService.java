@@ -1,6 +1,7 @@
-package service.sensor;
+package info.kilchhofer.bfh.lidar.service;
 
 import ch.quantasy.mqtt.gateway.client.GatewayClient;
+import com.google.common.primitives.Ints;
 import laser.scanner.*;
 import laser.scanner.tim55x.TiM55x;
 import laser.scanner.tim55x.com.ComNotRunningException;
@@ -9,8 +10,7 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.UnknownHostException;
-import java.util.Arrays;
-import java.util.Set;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -24,8 +24,9 @@ public class LidarService {
         IScanListener iScanListener = new IScanListener() {
             @Override
             public void newMeasData(IScanMeasData iScanMeasData) {
-                System.out.println(Arrays.toString(iScanMeasData.getAllDistanceValues()));
-                gatewayClient.readyToPublish(gatewayClient.getContract().EVENT_MEASUREMENT, new LidarMeasurementEvent(iScanMeasData.getAllDistanceValues()));
+                //System.out.println(Arrays.toString(iScanMeasData.getAllDistanceValues()));
+                ArrayList<Integer> distanceValues = new ArrayList<Integer>(Ints.asList(iScanMeasData.getAllDistanceValues()));
+                gatewayClient.readyToPublish(gatewayClient.getContract().EVENT_MEASUREMENT, new LidarMeasurementEvent(distanceValues));
             }
         };
 
@@ -45,21 +46,32 @@ public class LidarService {
         this.scanner = new TiM55x(iScanListener, iScanOperator, "192.168.91.2", 2112);
         this.gatewayClient.connect();
         this.gatewayClient.subscribe(gatewayClient.getContract().INTENT + "/#", (topic, payload) -> {
-            Set<LidarIntent> intents = gatewayClient.toMessageSet(payload, LidarIntent.class);
-            intents.stream().filter((intent) -> (intent.mode == LidarMode.singleMeas)).map((_item) -> {
-                try {
-                    this.scanner.runSingleMeas();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (ComNotRunningException e) {
-                    e.printStackTrace();
-                } catch (LaserScanStateException e) {
-                    e.printStackTrace();
-                }
-                return _item;
-            }).forEachOrdered((_item) -> {
 
-            });
+            try {
+
+                for(LidarIntent intent : gatewayClient.toMessageSet(payload, LidarIntent.class)){
+                    LOGGER.log(Level.INFO, "Received intent: " + intent);
+                    switch (intent.command){
+                        case CONT_MEAS_START:
+                            this.scanner.startContMeas();
+                            break;
+                        case CONT_MEAS_STOP:
+                            this.scanner.stopContMeas();
+                            break;
+                        case SINGLE_MEAS:
+                            this.scanner.runSingleMeas();
+                            break;
+                    }
+                }
+
+            } catch (IOException e) {
+                LOGGER.log(Level.SEVERE, null, e);
+            } catch (ComNotRunningException e) {
+                LOGGER.log(Level.SEVERE, null, e);
+            } catch (LaserScanStateException e) {
+                LOGGER.log(Level.SEVERE, null, e);
+            }
+
         });
     }
 

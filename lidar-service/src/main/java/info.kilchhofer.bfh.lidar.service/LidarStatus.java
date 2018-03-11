@@ -1,11 +1,11 @@
-package service.sensor;
+package info.kilchhofer.bfh.lidar.service;
 
 import ch.quantasy.mqtt.gateway.client.message.AStatus;
 
 public class LidarStatus extends AStatus {
-    public LidarMode mode;
+    public LidarCommand mode;
 
-    public LidarStatus(LidarMode mode) {
+    public LidarStatus(LidarCommand mode) {
         this.mode = mode;
     }
 
