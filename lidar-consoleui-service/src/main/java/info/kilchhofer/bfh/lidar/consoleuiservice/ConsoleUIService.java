@@ -61,7 +61,5 @@ public class ConsoleUIService {
         System.out.printf("\n%s will be used as broker address.\n", mqttURI);
 
         ConsoleUIService consoleUIService = new ConsoleUIService(mqttURI, "ConsoleUI" + computerName, computerName);
-
-        System.in.read();
     }
 }

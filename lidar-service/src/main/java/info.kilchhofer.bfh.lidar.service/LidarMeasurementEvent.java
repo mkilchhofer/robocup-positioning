@@ -1,7 +1,6 @@
 package info.kilchhofer.bfh.lidar.service;
 
 import ch.quantasy.mqtt.gateway.client.message.AnEvent;
-import com.google.common.primitives.Ints;
 
 import java.util.ArrayList;
 
