@@ -19,6 +19,8 @@ import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static java.lang.Character.toLowerCase;
+
 public class ConsoleUIServant {
 
     LidarServiceContract lidarServiceContract;
@@ -42,7 +44,6 @@ public class ConsoleUIServant {
             if (status.value.equals("online")) {
                 ConsoleIntent consoleIntent = new ConsoleIntent();
                 consoleIntent.consoleMessage = "Servant online";
-                LidarIntent lidarIntent = new LidarIntent();
 
                 this.gatewayClient.readyToPublish(consoleUIServiceContract.INTENT, consoleIntent);
                 this.consoleUIServiceInstances.add(consoleUIServiceContract);
@@ -52,7 +53,9 @@ public class ConsoleUIServant {
                     Set<ConsoleKeyPressEvent> consoleKeyPressEvents = gatewayClient.toMessageSet(eventPayload, ConsoleKeyPressEvent.class);
                     for (ConsoleKeyPressEvent consoleKeyPressEvent : consoleKeyPressEvents) {
                         System.out.println("Event Payload: " + consoleKeyPressEvent.character);
-                        switch (consoleKeyPressEvent.character) {
+                        LidarIntent lidarIntent = new LidarIntent();
+
+                        switch (toLowerCase(consoleKeyPressEvent.character)) {
                             case 's':
                                 System.out.println("single");
                                 lidarIntent.command = LidarCommand.SINGLE_MEAS;
@@ -65,11 +68,15 @@ public class ConsoleUIServant {
                                 System.out.println("disable");
                                 lidarIntent.command = LidarCommand.CONT_MEAS_STOP;
                                 break;
+                            default:
+
+                        }
+                        if(lidarIntent.command != null) {
+                            this.gatewayClient.readyToPublish(lidarServiceContract.INTENT, lidarIntent);
                         }
 
                     }
 
-                    this.gatewayClient.readyToPublish(lidarServiceContract.INTENT, lidarIntent);
                 });
             } else {
                 consoleUIServiceInstances.remove(consoleUIServiceInstance);
