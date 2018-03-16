@@ -2,11 +2,14 @@ package info.kilchhofer.bfh.lidar.consoleuiservant;
 
 import ch.quantasy.mqtt.gateway.client.ConnectionStatus;
 import ch.quantasy.mqtt.gateway.client.GatewayClient;
-import ch.quantasy.mqtt.gateway.client.message.MessageReceiver;
 import info.kilchhofer.bfh.lidar.consoleuiservant.contract.ConsoleUIServantContract;
 import info.kilchhofer.bfh.lidar.consoleuiservice.event.ConsoleKeyPressEvent;
 import info.kilchhofer.bfh.lidar.consoleuiservice.intent.ConsoleIntent;
 import info.kilchhofer.bfh.lidar.service.*;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.config.Configurator;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import info.kilchhofer.bfh.lidar.consoleuiservice.contract.ConsoleUIServiceContract;
 
@@ -16,8 +19,6 @@ import java.net.UnknownHostException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import static java.lang.Character.toLowerCase;
 
@@ -26,7 +27,7 @@ public class ConsoleUIServant {
     LidarServiceContract lidarServiceContract;
     Set<ConsoleUIServiceContract> consoleUIServiceInstances;
     GatewayClient gatewayClient;
-    private static final Logger LOGGER = Logger.getLogger(ConsoleUIServant.class.getName());
+    private static final Logger logger = LogManager.getLogger(ConsoleUIServant.class);
 
     public ConsoleUIServant(URI mqttURI, String mqttClientName, String instanceName) throws MqttException {
         this.gatewayClient = new GatewayClient<ConsoleUIServantContract>(mqttURI, mqttClientName, new ConsoleUIServantContract(instanceName));
@@ -36,7 +37,7 @@ public class ConsoleUIServant {
 
 
         this.gatewayClient.subscribe("Robocup/LidarConsoleUI/U/+/S/connection", (topic, payload) -> {
-            System.out.println("Payload: " + new String(payload));
+            logger.trace("Payload: " + new String(payload));
             ConnectionStatus status = new TreeSet<ConnectionStatus>(gatewayClient.toMessageSet(payload, ConnectionStatus.class)).last();
             String consoleUIServiceInstance = topic.replaceFirst("Robocup/LidarConsoleUI/U/", "").replaceFirst("/S/connection", "");
             ConsoleUIServiceContract consoleUIServiceContract = new ConsoleUIServiceContract(consoleUIServiceInstance);
@@ -52,20 +53,20 @@ public class ConsoleUIServant {
 
                     Set<ConsoleKeyPressEvent> consoleKeyPressEvents = gatewayClient.toMessageSet(eventPayload, ConsoleKeyPressEvent.class);
                     for (ConsoleKeyPressEvent consoleKeyPressEvent : consoleKeyPressEvents) {
-                        System.out.println("Event Payload: " + consoleKeyPressEvent.character);
+                        logger.trace("Event Payload: " + consoleKeyPressEvent.character);
                         LidarIntent lidarIntent = new LidarIntent();
 
                         switch (toLowerCase(consoleKeyPressEvent.character)) {
                             case 's':
-                                System.out.println("single");
+                                logger.info(LidarCommand.SINGLE_MEAS.toString());
                                 lidarIntent.command = LidarCommand.SINGLE_MEAS;
                                 break;
                             case 'e':
-                                System.out.println("enable");
+                                logger.info(LidarCommand.CONT_MEAS_START.toString());
                                 lidarIntent.command = LidarCommand.CONT_MEAS_START;
                                 break;
                             case 'd':
-                                System.out.println("disable");
+                                logger.info(LidarCommand.CONT_MEAS_STOP.toString());
                                 lidarIntent.command = LidarCommand.CONT_MEAS_STOP;
                                 break;
                             default:
@@ -96,14 +97,15 @@ public class ConsoleUIServant {
 
     }
 
-
     private static String computerName;
 
     static {
+        Configurator.setLevel(LogManager.getLogger(ConsoleUIServant.class).getName(), Level.TRACE);
+        System.out.println(logger.getLevel());
         try {
             computerName = java.net.InetAddress.getLocalHost().getHostName();
         } catch (UnknownHostException ex) {
-            LOGGER.log(Level.SEVERE, null, ex);
+            logger.error((String) null, ex);
             computerName = "undefined";
         }
     }
