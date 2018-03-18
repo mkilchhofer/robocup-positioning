@@ -6,10 +6,8 @@ import info.kilchhofer.bfh.lidar.consoleuiservant.contract.ConsoleUIServantContr
 import info.kilchhofer.bfh.lidar.consoleuiservice.event.ConsoleKeyPressEvent;
 import info.kilchhofer.bfh.lidar.consoleuiservice.intent.ConsoleIntent;
 import info.kilchhofer.bfh.lidar.service.*;
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.config.Configurator;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import info.kilchhofer.bfh.lidar.consoleuiservice.contract.ConsoleUIServiceContract;
 
@@ -100,8 +98,6 @@ public class ConsoleUIServant {
     private static String computerName;
 
     static {
-        Configurator.setLevel(LogManager.getLogger(ConsoleUIServant.class).getName(), Level.TRACE);
-        System.out.println(logger.getLevel());
         try {
             computerName = java.net.InetAddress.getLocalHost().getHostName();
         } catch (UnknownHostException ex) {
@@ -111,13 +107,14 @@ public class ConsoleUIServant {
     }
 
     public static void main(String[] args) throws MqttException, InterruptedException, IOException {
+        System.out.println("Loglevel= " + logger.getLevel());
         URI mqttURI = URI.create("tcp://127.0.0.1:1883");
         if (args.length > 0) {
             mqttURI = URI.create(args[0]);
         } else {
-            System.out.printf("Per default, 'tcp://127.0.0.1:1883' is chosen.\nYou can provide another address as first argument i.e.: tcp://iot.eclipse.org:1883\n");
+            logger.info("Per default, 'tcp://127.0.0.1:1883' is chosen. You can provide another address as first argument i.e.: tcp://iot.eclipse.org:1883");
         }
-        System.out.printf("\n%s will be used as broker address.\n", mqttURI);
+        logger.info(mqttURI+" will be used as broker address.");
 
         ConsoleUIServant consoleUIServant = new ConsoleUIServant(mqttURI, "LidarServant" + computerName, computerName);
 
