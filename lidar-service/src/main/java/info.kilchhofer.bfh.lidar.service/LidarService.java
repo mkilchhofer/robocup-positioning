@@ -11,20 +11,20 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class LidarService {
     private IScan scanner;
     private final GatewayClient<LidarServiceContract> gatewayClient;
-    private static final Logger LOGGER = Logger.getLogger(LidarService.class.getName());
+    private static final Logger logger = LogManager.getLogger(LidarService.class);
 
     public LidarService(URI mqttURI, String mqttClientName, String instanceName) throws MqttException, IOException {
         this.gatewayClient = new GatewayClient<LidarServiceContract>(mqttURI, mqttClientName, new LidarServiceContract(instanceName));
         IScanListener iScanListener = new IScanListener() {
             @Override
             public void newMeasData(IScanMeasData iScanMeasData) {
-                //System.out.println(Arrays.toString(iScanMeasData.getAllDistanceValues()));
                 ArrayList<Integer> distanceValues = new ArrayList<Integer>(Ints.asList(iScanMeasData.getAllDistanceValues()));
                 gatewayClient.readyToPublish(gatewayClient.getContract().EVENT_MEASUREMENT, new LidarMeasurementEvent(distanceValues));
             }
@@ -33,13 +33,13 @@ public class LidarService {
         IScanOperator iScanOperator = new IScanOperator() {
             @Override
             public void newStateActice(State state) {
-                LOGGER.log(Level.INFO, "New laser state active: " + state);
+                logger.info("New laser state active: " + state);
                 gatewayClient.readyToPublish(gatewayClient.getContract().STATUS_STATE, new LidarState(state));
             }
 
             @Override
             public void errorOccured() {
-                LOGGER.log(Level.SEVERE, "Laser ERROR");
+                logger.error("Laser ERROR");
             }
         };
 
@@ -50,7 +50,7 @@ public class LidarService {
             try {
 
                 for(LidarIntent intent : gatewayClient.toMessageSet(payload, LidarIntent.class)){
-                    LOGGER.log(Level.INFO, "Received intent: " + intent);
+                    logger.log(Level.INFO, "Received intent: " + intent);
                     switch (intent.command){
                         case CONT_MEAS_START:
                             this.scanner.startContMeas();
@@ -65,11 +65,11 @@ public class LidarService {
                 }
 
             } catch (IOException e) {
-                LOGGER.log(Level.SEVERE, null, e);
+                logger.error((String)null, e);
             } catch (ComNotRunningException e) {
-                LOGGER.log(Level.SEVERE, null, e);
+                logger.error((String)null, e);
             } catch (LaserScanStateException e) {
-                LOGGER.log(Level.SEVERE, null, e);
+                logger.error((String)null, e);
             }
 
         });
@@ -81,19 +81,20 @@ public class LidarService {
         try {
             computerName = java.net.InetAddress.getLocalHost().getHostName();
         } catch (UnknownHostException ex) {
-            LOGGER.log(Level.SEVERE, null, ex);
+            logger.error((String)null, ex);
             computerName = "undefined";
         }
     }
 
     public static void main(String[] args) throws MqttException, InterruptedException, IOException {
+        System.out.println("Loglevel= " + logger.getLevel());
         URI mqttURI = URI.create("tcp://127.0.0.1:1883");
         if (args.length > 0) {
             mqttURI = URI.create(args[0]);
         } else {
-            System.out.printf("Per default, 'tcp://127.0.0.1:1883' is chosen.\nYou can provide another address as first argument i.e.: tcp://iot.eclipse.org:1883\n");
+            logger.info("Per default, 'tcp://127.0.0.1:1883' is chosen. You can provide another address as first argument i.e.: tcp://iot.eclipse.org:1883");
         }
-        System.out.printf("\n%s will be used as broker address.\n", mqttURI);
+        logger.info(mqttURI + " will be used as broker address.");
 
         LidarService lidarService = new LidarService(mqttURI, "Lidar" + computerName, computerName);
 
