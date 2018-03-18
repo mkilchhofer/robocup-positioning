@@ -10,7 +10,7 @@
     <version>1.0-SNAPSHOT</version>
     <modules>
         <module>lidar-consoleui-service</module>
-        <module>lidar-service</module>
+        <module>lidar-hardware-service</module>
         <module>lidar-consoleui-servant</module>
     </modules>
     <properties>

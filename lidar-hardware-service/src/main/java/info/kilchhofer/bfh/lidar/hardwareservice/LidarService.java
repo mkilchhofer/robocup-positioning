@@ -1,4 +1,4 @@
-package info.kilchhofer.bfh.lidar.service;
+package info.kilchhofer.bfh.lidar.hardwareservice;
 
 import ch.quantasy.mqtt.gateway.client.GatewayClient;
 import com.google.common.primitives.Ints;

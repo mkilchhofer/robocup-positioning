@@ -1,4 +1,4 @@
-package info.kilchhofer.bfh.lidar.service;
+package info.kilchhofer.bfh.lidar.hardwareservice;
 
 public enum LidarCommand {
     CONT_MEAS_START,

@@ -22,7 +22,7 @@
         </dependency>
         <dependency>
             <groupId>info.kilchhofer.bfh</groupId>
-            <artifactId>lidar-service</artifactId>
+            <artifactId>lidar-hardware-service</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
