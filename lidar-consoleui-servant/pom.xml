@@ -12,6 +12,11 @@
     <artifactId>lidar-consoleui-servant</artifactId>
     <dependencies>
         <dependency>
+            <groupId>info.kilchhofer.bfh</groupId>
+            <artifactId>lidar-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.github.mkilchhofer</groupId>
             <artifactId>ch.quantasy.mqtt.gateway</artifactId>
         </dependency>

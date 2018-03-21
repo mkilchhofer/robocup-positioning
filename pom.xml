@@ -12,6 +12,7 @@
         <module>lidar-consoleui-service</module>
         <module>lidar-hardware-service</module>
         <module>lidar-consoleui-servant</module>
+        <module>lidar-common</module>
     </modules>
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>

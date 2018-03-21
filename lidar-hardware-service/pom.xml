@@ -14,6 +14,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>info.kilchhofer.bfh</groupId>
+            <artifactId>lidar-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ch.hftm</groupId>
             <artifactId>lidar</artifactId>
         </dependency>
