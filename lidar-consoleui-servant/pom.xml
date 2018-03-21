@@ -12,7 +12,7 @@
     <artifactId>lidar-consoleui-servant</artifactId>
     <dependencies>
         <dependency>
-            <groupId>ch.quantasy</groupId>
+            <groupId>com.github.mkilchhofer</groupId>
             <artifactId>ch.quantasy.mqtt.gateway</artifactId>
         </dependency>
         <dependency>
