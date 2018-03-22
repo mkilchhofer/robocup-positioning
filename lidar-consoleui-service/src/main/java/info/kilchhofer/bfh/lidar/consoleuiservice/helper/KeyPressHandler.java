@@ -3,12 +3,15 @@ package info.kilchhofer.bfh.lidar.consoleuiservice.helper;
 import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.Terminal;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
 
 public class KeyPressHandler implements Runnable {
 
+    private static final Logger logger = LogManager.getLogger(KeyPressHandler.class);
     private IKeyPress keyPressCallback;
     private Terminal terminal;
 
@@ -34,9 +37,10 @@ public class KeyPressHandler implements Runnable {
                     e.printStackTrace();
                 }
             } else if (key.getCharacter() == 'q'){
-                System.out.println("'q' Pressed. Exiting...");
+                logger.info("'q' Pressed. Exiting...");
                 System.exit(0);
             } else {
+                logger.info("Pressed '{}'.", key.getCharacter());
                 keyPressCallback.keyPressed(key.getCharacter());
             }
         }

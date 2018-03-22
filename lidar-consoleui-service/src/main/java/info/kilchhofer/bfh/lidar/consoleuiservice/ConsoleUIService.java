@@ -30,7 +30,6 @@ public class ConsoleUIService {
         });
 
         keyPressHandler = new KeyPressHandler(character -> {
-            System.out.println(character);
             gatewayClient.readyToPublish(gatewayClient.getContract().EVENT_KEYPRESS, new ConsoleKeyPressEvent(character));
         });
         Thread keyPressHandlerThread = new Thread(keyPressHandler);
@@ -45,7 +44,7 @@ public class ConsoleUIService {
         try {
             computerName = java.net.InetAddress.getLocalHost().getHostName();
         } catch (UnknownHostException ex) {
-            logger.error((String)null, ex);
+            logger.error("undefined hostname", ex);
             computerName = "undefined";
         }
     }

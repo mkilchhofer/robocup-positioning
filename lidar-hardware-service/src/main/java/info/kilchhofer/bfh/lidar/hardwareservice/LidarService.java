@@ -20,7 +20,7 @@ public class LidarService {
     private final GatewayClient<LidarServiceContract> gatewayClient;
     private static final Logger logger = LogManager.getLogger(LidarService.class);
 
-    public LidarService(URI mqttURI, String mqttClientName, String instanceName) throws MqttException, IOException {
+    public LidarService(URI mqttURI, String mqttClientName, String instanceName, String lidarIp, int lidarPort) throws MqttException, IOException {
         this.gatewayClient = new GatewayClient<LidarServiceContract>(mqttURI, mqttClientName, new LidarServiceContract(instanceName));
         IScanListener iScanListener = new IScanListener() {
             @Override
@@ -43,7 +43,7 @@ public class LidarService {
             }
         };
 
-        this.scanner = new TiM55x(iScanListener, iScanOperator, "192.168.91.2", 2112);
+        this.scanner = new TiM55x(iScanListener, iScanOperator, lidarIp, lidarPort);
         this.gatewayClient.connect();
         this.gatewayClient.subscribe(gatewayClient.getContract().INTENT + "/#", (topic, payload) -> {
 
@@ -96,7 +96,13 @@ public class LidarService {
         }
         logger.info(mqttURI + " will be used as broker address.");
 
-        LidarService lidarService = new LidarService(mqttURI, "Lidar" + computerName, computerName);
+        String lidarIp= "192.168.91.2";
+        int lidarPort = 2112;
+
+        String mqttClientName = lidarIp + "@" + computerName;
+        String instanceName = mqttClientName;
+
+        LidarService lidarService = new LidarService(mqttURI, mqttClientName, instanceName, lidarIp, lidarPort);
 
         System.in.read();
     }

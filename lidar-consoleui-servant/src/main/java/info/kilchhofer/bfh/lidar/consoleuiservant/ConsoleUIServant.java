@@ -5,10 +5,7 @@ import ch.quantasy.mqtt.gateway.client.GatewayClient;
 import info.kilchhofer.bfh.lidar.consoleuiservant.contract.ConsoleUIServantContract;
 import info.kilchhofer.bfh.lidar.consoleuiservice.event.ConsoleKeyPressEvent;
 import info.kilchhofer.bfh.lidar.consoleuiservice.intent.ConsoleIntent;
-import info.kilchhofer.bfh.lidar.hardwareservice.LidarCommand;
-import info.kilchhofer.bfh.lidar.hardwareservice.LidarIntent;
-import info.kilchhofer.bfh.lidar.hardwareservice.LidarMeasurementEvent;
-import info.kilchhofer.bfh.lidar.hardwareservice.LidarServiceContract;
+import info.kilchhofer.bfh.lidar.hardwareservice.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -25,25 +22,33 @@ import static java.lang.Character.toLowerCase;
 
 public class ConsoleUIServant {
 
-    LidarServiceContract lidarServiceContract;
-    Set<ConsoleUIServiceContract> consoleUIServiceInstances;
-    GatewayClient gatewayClient;
     private static final Logger logger = LogManager.getLogger(ConsoleUIServant.class);
+    private LidarServiceContract lidarServiceContract;
+    private Set<ConsoleUIServiceContract> consoleUIServiceInstances;
+    private GatewayClient gatewayClient;
+
+    // Do not hardcode topics for autodetect service instances
+    private final ConsoleUIServiceContract allConsoleUIContracts = new ConsoleUIServiceContract("+");
+    private final LidarServiceContract tempLidarServiceContract = new LidarServiceContract("+");
 
     public ConsoleUIServant(URI mqttURI, String mqttClientName, String instanceName) throws MqttException {
         this.gatewayClient = new GatewayClient<ConsoleUIServantContract>(mqttURI, mqttClientName, new ConsoleUIServantContract(instanceName));
         this.consoleUIServiceInstances = new HashSet<>();
         this.gatewayClient.connect();
-        this.lidarServiceContract = new LidarServiceContract(instanceName);
 
+        handleConsoleUI();
+        handleLidarHardware();
+    }
 
-        this.gatewayClient.subscribe("Robocup/LidarConsoleUI/U/+/S/connection", (topic, payload) -> {
+    private void handleConsoleUI(){
+        // Subscribe to all console UI instances
+        this.gatewayClient.subscribe(allConsoleUIContracts.STATUS_CONNECTION, (topic, payload) -> {
             logger.trace("Payload: " + new String(payload));
             ConnectionStatus status = new TreeSet<ConnectionStatus>(gatewayClient.toMessageSet(payload, ConnectionStatus.class)).last();
-            String consoleUIServiceInstance = topic.replaceFirst("Robocup/LidarConsoleUI/U/", "").replaceFirst("/S/connection", "");
-            ConsoleUIServiceContract consoleUIServiceContract = new ConsoleUIServiceContract(consoleUIServiceInstance);
+            ConsoleUIServiceContract consoleUIServiceContract = new ConsoleUIServiceContract(topic, true);
 
             if (status.value.equals("online")) {
+                logger.info("Instance {} online", consoleUIServiceContract.INSTANCE);
                 ConsoleIntent consoleIntent = new ConsoleIntent();
                 consoleIntent.consoleMessage = "Servant online";
 
@@ -57,45 +62,74 @@ public class ConsoleUIServant {
                         logger.trace("Event Payload: " + consoleKeyPressEvent.character);
                         LidarIntent lidarIntent = new LidarIntent();
 
-                        switch (toLowerCase(consoleKeyPressEvent.character)) {
+                        Character receivedChar = toLowerCase(consoleKeyPressEvent.character);
+                        switch (receivedChar) {
                             case 's':
-                                logger.info(LidarCommand.SINGLE_MEAS.toString());
                                 lidarIntent.command = LidarCommand.SINGLE_MEAS;
                                 break;
                             case 'e':
-                                logger.info(LidarCommand.CONT_MEAS_START.toString());
                                 lidarIntent.command = LidarCommand.CONT_MEAS_START;
                                 break;
                             case 'd':
-                                logger.info(LidarCommand.CONT_MEAS_STOP.toString());
                                 lidarIntent.command = LidarCommand.CONT_MEAS_STOP;
                                 break;
                             default:
+                                logger.warn("Received unknown command '{}'", receivedChar);
 
                         }
                         if(lidarIntent.command != null) {
+                            logger.info("Received '{}'. Send Intent '{}' to Hardware Service.",
+                                    receivedChar,
+                                    lidarIntent.command.toString());
                             this.gatewayClient.readyToPublish(lidarServiceContract.INTENT, lidarIntent);
                         }
-
                     }
-
                 });
             } else {
-                consoleUIServiceInstances.remove(consoleUIServiceInstance);
+                logger.info("Instance {} offline", consoleUIServiceContract.INSTANCE);
+                consoleUIServiceInstances.remove(consoleUIServiceContract);
             }
         });
+    }
 
-        this.gatewayClient.subscribe(lidarServiceContract.EVENT_MEASUREMENT, (topic, payload) ->{
-            Set<LidarMeasurementEvent> lidarMeasurementEvents = gatewayClient.toMessageSet(payload, LidarMeasurementEvent.class);
-            for(LidarMeasurementEvent lidarMeasurementEvent : lidarMeasurementEvents) {
-                consoleUIServiceInstances.forEach((instance) -> {
-                    ConsoleIntent consoleIntent = new ConsoleIntent();
-                    consoleIntent.consoleMessage = lidarMeasurementEvent.toString();
-                    this.gatewayClient.readyToPublish(instance.INTENT, consoleIntent);
+    private void handleLidarHardware(){
+        // Subscribe to all console UI instances
+        this.gatewayClient.subscribe(tempLidarServiceContract.STATUS_CONNECTION, (topic, payload) -> {
+            logger.trace("Payload: " + new String(payload));
+            ConnectionStatus status = new TreeSet<ConnectionStatus>(gatewayClient.toMessageSet(payload, ConnectionStatus.class)).last();
+            this.lidarServiceContract = new LidarServiceContract(topic, true);
+
+            if (status.value.equals("online")) {
+                logger.info("Hardware Instance online: {}", lidarServiceContract.INSTANCE);
+
+                // Subscribe to hardware measurement events
+                this.gatewayClient.subscribe(lidarServiceContract.EVENT_MEASUREMENT, (eventTopic, eventPayload) ->{
+                    Set<LidarMeasurementEvent> lidarMeasurementEvents = gatewayClient.toMessageSet(eventPayload, LidarMeasurementEvent.class);
+                    for(LidarMeasurementEvent lidarMeasurementEvent : lidarMeasurementEvents) {
+                        consoleUIServiceInstances.forEach((instance) -> {
+                            ConsoleIntent consoleIntent = new ConsoleIntent();
+                            consoleIntent.consoleMessage = lidarMeasurementEvent.toString();
+                            this.gatewayClient.readyToPublish(instance.INTENT, consoleIntent);
+                        });
+                    }
                 });
+
+                // Subscribe to hardware status
+                this.gatewayClient.subscribe(lidarServiceContract.STATUS_STATE, (statusTopic, statusPayload) -> {
+                    logger.trace("STATUS_STATE Payload: " + statusPayload);
+                    Set<LidarState> lidarStates = gatewayClient.toMessageSet(statusPayload, LidarState.class);
+                    for(LidarState lidarState : lidarStates) {
+                        consoleUIServiceInstances.forEach((instance) -> {
+                            ConsoleIntent consoleIntent = new ConsoleIntent();
+                            consoleIntent.consoleMessage = "Sensor " + lidarState.state;
+                            this.gatewayClient.readyToPublish(instance.INTENT, consoleIntent);
+                        });
+                    }
+                });
+            } else {
+                logger.info("Hardware Instance offline: {}", lidarServiceContract.INSTANCE);
             }
         });
-
     }
 
     private static String computerName;
@@ -104,7 +138,7 @@ public class ConsoleUIServant {
         try {
             computerName = java.net.InetAddress.getLocalHost().getHostName();
         } catch (UnknownHostException ex) {
-            logger.error((String) null, ex);
+            logger.error("undefined hostname", ex);
             computerName = "undefined";
         }
     }
@@ -117,9 +151,12 @@ public class ConsoleUIServant {
         } else {
             logger.info("Per default, 'tcp://127.0.0.1:1883' is chosen. You can provide another address as first argument i.e.: tcp://iot.eclipse.org:1883");
         }
-        logger.info(mqttURI+" will be used as broker address.");
+        logger.info("{} will be used as broker address.", mqttURI);
 
-        ConsoleUIServant consoleUIServant = new ConsoleUIServant(mqttURI, "LidarServant" + computerName, computerName);
+        String mqttClientName = "LidarServant@" + computerName;
+        String instanceName = mqttClientName;
+
+        ConsoleUIServant consoleUIServant = new ConsoleUIServant(mqttURI, mqttClientName, instanceName);
 
         System.in.read();
     }
