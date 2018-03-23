@@ -8,8 +8,8 @@ Experten: Dr. Joachim Wolfgang Kaltz
 LIDAR Einbindung für den Robocup
 
 ## Anforderung/Abgrenzung in Kürze
-* Ansteuerung des Sensors: hftm-library verwenden (ZIP)
-* MQTT-Middleware von Reto Koenig: "ch.quantasy.mqtt.gateway"
+* Ansteuerung des Sensors: hftm-library verwenden [ZIP bzw. jetzt gitlab](https://gitlab.ti.bfh.ch/kilcm1/hftm-lidar)
+* MQTT-Middleware von Reto Koenig: [ch.quantasy.mqtt.gateway](https://github.com/knr1/ch.quantasy.mqtt.gateway)
 
 Bei Fehler in den entsprechenden Libraries kann auf die entsprechenden Entwickler zugegangen werden.
 
