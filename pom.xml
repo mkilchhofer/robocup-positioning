@@ -13,6 +13,7 @@
         <module>lidar-hardware-service</module>
         <module>lidar-consoleui-servant</module>
         <module>lidar-common</module>
+        <module>lidar-hardware-mock</module>
     </modules>
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
