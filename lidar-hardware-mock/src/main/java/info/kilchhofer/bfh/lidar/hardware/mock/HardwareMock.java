@@ -44,12 +44,12 @@ public class HardwareMock implements IReadListener {
                 receivedByte(temp);
                 LOGGER.trace("receivedByte ended");
             }
-            bufferedReader.close();
-            bufferedReader = null;
+            this.bufferedReader.close();
+            this.bufferedReader = null;
             LOGGER.info("bufferedReader reset");
 
-            connectionSocket.close();
-            connectionSocket = null;
+            this.connectionSocket.close();
+            this.connectionSocket = null;
             LOGGER.info("connectionSocket reset");
         }
 
@@ -72,36 +72,36 @@ public class HardwareMock implements IReadListener {
             if (this.foobar.contains("sRN LMDscandata")) {
                 LOGGER.info("Single Scan requested");
 
-                outputStream.write(DATA_START);
-                outputStream.write(singleAnswer.getBytes());
-                outputStream.write(DATA_END);
-                outputStream.flush();
+                this.outputStream.write(DATA_START);
+                this.outputStream.write(singleAnswer.getBytes());
+                this.outputStream.write(DATA_END);
+                this.outputStream.flush();
             }
 
             if (this.foobar.contains("sEN LMDscandata 1")) {
                 LOGGER.info("cont Scan START requested");
 
                 // ACK request
-                outputStream.write(DATA_START);
-                outputStream.write(contAnswer1.getBytes());
-                outputStream.write(DATA_END);
-                outputStream.flush();
+                this.outputStream.write(DATA_START);
+                this.outputStream.write(contAnswer1.getBytes());
+                this.outputStream.write(DATA_END);
+                this.outputStream.flush();
 
                 // Measurement data
-                outputStream.write(DATA_START);
-                outputStream.write(contAnswer2.getBytes());
-                outputStream.write(DATA_END);
-                outputStream.flush();
+                this.outputStream.write(DATA_START);
+                this.outputStream.write(contAnswer2.getBytes());
+                this.outputStream.write(DATA_END);
+                this.outputStream.flush();
             }
 
             if (this.foobar.contains("sEN LMDscandata 0")) {
                 LOGGER.info("cont Scan STOP requested");
 
                 // ACK request
-                outputStream.write(DATA_START);
-                outputStream.write(contAnswerStop.getBytes());
-                outputStream.write(DATA_END);
-                outputStream.flush();
+                this.outputStream.write(DATA_START);
+                this.outputStream.write(contAnswerStop.getBytes());
+                this.outputStream.write(DATA_END);
+                this.outputStream.flush();
             }
         }
         return;
