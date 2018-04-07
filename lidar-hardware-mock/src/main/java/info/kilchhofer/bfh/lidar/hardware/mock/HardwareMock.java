@@ -7,7 +7,7 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class HardwareMock implements IReadListener {
+public class HardwareMock {
     private static final Logger LOGGER = LogManager.getLogger(HardwareMock.class);
     private static Socket connectionSocket;
     private static BufferedReader bufferedReader;
@@ -55,56 +55,56 @@ public class HardwareMock implements IReadListener {
 
     }
 
-    @Override
     public void receivedByte(byte value) throws IOException {
         LOGGER.trace("receivedByte '{}'", (char)value);
-        this.foobar = this.foobar + (char)value;
 
-        if(value == 2){
-            LOGGER.info("STX received");
-            this.foobar = "" + (char)value;
-            return;
+        switch (value){
+            case 2:
+                this.foobar = "<STX>";
+                LOGGER.info("STX received, clearing String.");
+                break;
+            case 3:
+                this.foobar = this.foobar + "<ETX>";
+                LOGGER.info("ETX received. String is now: {}", this.foobar);
+
+                if (this.foobar.contains("sRN LMDscandata")) {
+                    LOGGER.info("Single Scan requested");
+
+                    this.outputStream.write(DATA_START);
+                    this.outputStream.write(singleAnswer.getBytes());
+                    this.outputStream.write(DATA_END);
+                    this.outputStream.flush();
+                }
+
+                if (this.foobar.contains("sEN LMDscandata 1")) {
+                    LOGGER.info("cont Scan START requested");
+
+                    // ACK request
+                    this.outputStream.write(DATA_START);
+                    this.outputStream.write(contAnswer1.getBytes());
+                    this.outputStream.write(DATA_END);
+                    this.outputStream.flush();
+
+                    // Measurement data
+                    this.outputStream.write(DATA_START);
+                    this.outputStream.write(contAnswer2.getBytes());
+                    this.outputStream.write(DATA_END);
+                    this.outputStream.flush();
+                }
+
+                if (this.foobar.contains("sEN LMDscandata 0")) {
+                    LOGGER.info("cont Scan STOP requested");
+
+                    // ACK request
+                    this.outputStream.write(DATA_START);
+                    this.outputStream.write(contAnswerStop.getBytes());
+                    this.outputStream.write(DATA_END);
+                    this.outputStream.flush();
+                }
+                break;
+            default:
+                this.foobar = this.foobar + (char)value;
         }
-
-        if(value == 3) {
-            LOGGER.info("ETX received. String is now: {}", this.foobar);
-
-            if (this.foobar.contains("sRN LMDscandata")) {
-                LOGGER.info("Single Scan requested");
-
-                this.outputStream.write(DATA_START);
-                this.outputStream.write(singleAnswer.getBytes());
-                this.outputStream.write(DATA_END);
-                this.outputStream.flush();
-            }
-
-            if (this.foobar.contains("sEN LMDscandata 1")) {
-                LOGGER.info("cont Scan START requested");
-
-                // ACK request
-                this.outputStream.write(DATA_START);
-                this.outputStream.write(contAnswer1.getBytes());
-                this.outputStream.write(DATA_END);
-                this.outputStream.flush();
-
-                // Measurement data
-                this.outputStream.write(DATA_START);
-                this.outputStream.write(contAnswer2.getBytes());
-                this.outputStream.write(DATA_END);
-                this.outputStream.flush();
-            }
-
-            if (this.foobar.contains("sEN LMDscandata 0")) {
-                LOGGER.info("cont Scan STOP requested");
-
-                // ACK request
-                this.outputStream.write(DATA_START);
-                this.outputStream.write(contAnswerStop.getBytes());
-                this.outputStream.write(DATA_END);
-                this.outputStream.flush();
-            }
-        }
-        return;
     }
 
     public static void main(String[] args) throws Exception {
