@@ -13,5 +13,8 @@ LIDAR Einbindung für den Robocup
 
 Bei Fehler in den entsprechenden Libraries kann auf die entsprechenden Entwickler zugegangen werden.
 
+## Doku
+https://github.com/mkilchhofer/bfh-thesis-doc
+
 ## Journal
 https://docs.google.com/spreadsheets/d/1ErvfsqONoXlKaWbn-jG186KzGLPo5LJ2X94blDZ30fs/edit?usp=sharing
