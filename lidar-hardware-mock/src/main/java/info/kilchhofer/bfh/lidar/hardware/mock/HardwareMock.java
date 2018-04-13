@@ -6,6 +6,10 @@ import org.apache.logging.log4j.Logger;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 public class HardwareMock {
     private static final Logger LOGGER = LogManager.getLogger(HardwareMock.class);
@@ -13,6 +17,8 @@ public class HardwareMock {
     private static BufferedReader bufferedReader;
     private static DataOutputStream outputStream;
     private String foobar;
+    private Timer timer;
+    private long sentMeasurements = 0, startTime;
     private final static byte DATA_START = 2;
     private final static byte DATA_END = 3;
 
@@ -85,21 +91,51 @@ public class HardwareMock {
                     this.outputStream.write(DATA_END);
                     this.outputStream.flush();
 
-                    // Measurement data
-                    this.outputStream.write(DATA_START);
-                    this.outputStream.write(contAnswer2.getBytes());
-                    this.outputStream.write(DATA_END);
-                    this.outputStream.flush();
+                    // Measurement data, continuous mode
+                    this.startTime = System.currentTimeMillis();
+                    TimerTask task = new TimerTask() {
+                        @Override
+                        public void run() {
+                            // task to run goes here
+                            sentMeasurements ++;
+                            LOGGER.debug("Sent {} measurements.", sentMeasurements);
+                            try {
+                                outputStream.write(DATA_START);
+                                outputStream.write(contAnswer2.getBytes());
+                                outputStream.write(DATA_END);
+                                outputStream.flush();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    };
+                    this.timer = new Timer();
+                    long delay = 0;
+                    // Schedule with 15Hz
+                    long intevalPeriod = 1000/15;
+                    this.timer.scheduleAtFixedRate(task, delay, intevalPeriod);
+
+
                 }
 
                 if (this.foobar.contains("sEN LMDscandata 0")) {
                     LOGGER.info("cont Scan STOP requested");
+
+                    timer.cancel();
+                    timer = null;
 
                     // ACK request
                     this.outputStream.write(DATA_START);
                     this.outputStream.write(contAnswerStop.getBytes());
                     this.outputStream.write(DATA_END);
                     this.outputStream.flush();
+
+                    // Statistics
+                    long now = System.currentTimeMillis();
+                    double diffSeconds = (double)(now - this.startTime)/1000;
+                    double hertz = (double)sentMeasurements / diffSeconds;
+                    LOGGER.info("Sent {} measurements in {} seconds. (= {} Hz)", sentMeasurements, diffSeconds, hertz);
+                    sentMeasurements = 0;
                 }
                 break;
             default:
