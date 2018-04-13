@@ -6,7 +6,6 @@ import laser.scanner.*;
 import laser.scanner.tim55x.TiM55x;
 import laser.scanner.tim55x.com.ComNotRunningException;
 import org.apache.commons.cli.*;
-import org.apache.logging.log4j.core.util.ArrayUtils;
 import org.eclipse.paho.client.mqttv3.MqttException;
 
 import java.io.IOException;
@@ -30,7 +29,8 @@ public class LidarService {
             @Override
             public void newMeasData(IScanMeasData iScanMeasData) {
                 ArrayList<Integer> distanceValues = new ArrayList<Integer>(Ints.asList(iScanMeasData.getAllDistanceValues()));
-                gatewayClient.readyToPublish(gatewayClient.getContract().EVENT_MEASUREMENT, new LidarMeasurementEvent(distanceValues));
+                ArrayList<Integer> rssiValues = new ArrayList<Integer>(Ints.asList(iScanMeasData.getAllRSSIValues()));
+                gatewayClient.readyToPublish(gatewayClient.getContract().EVENT_MEASUREMENT, new LidarMeasurementEvent(distanceValues, rssiValues));
             }
         };
 

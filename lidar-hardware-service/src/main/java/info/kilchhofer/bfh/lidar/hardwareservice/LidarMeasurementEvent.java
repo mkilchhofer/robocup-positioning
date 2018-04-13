@@ -7,9 +7,11 @@ import java.util.ArrayList;
 public class LidarMeasurementEvent extends AnEvent{
 
     ArrayList<Integer> distanceValues;
+    ArrayList<Integer> rssiValues;
 
-    public LidarMeasurementEvent(ArrayList<Integer> distanceValues) {
+    public LidarMeasurementEvent(ArrayList<Integer> distanceValues, ArrayList<Integer> rssiValues) {
         this.distanceValues = distanceValues;
+        this.rssiValues = rssiValues;
     }
 
     private LidarMeasurementEvent() {
