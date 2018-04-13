@@ -29,11 +29,11 @@ public class HardwareMock {
 
     private String contAnswerStop = "sEA LMDscandata 0";
 
-    public HardwareMock () throws Exception {
+    public HardwareMock (int port) throws Exception {
         this.foobar = "";
 
         this.connectionSocket = null;
-        ServerSocket serverSocket = new ServerSocket(2112, 0);
+        ServerSocket serverSocket = new ServerSocket(port, 0);
         while (true) {
             if (this.connectionSocket == null) {
                 LOGGER.info("this.connectionSocket == null");
@@ -144,6 +144,6 @@ public class HardwareMock {
     }
 
     public static void main(String[] args) throws Exception {
-        HardwareMock hw = new HardwareMock();
+        HardwareMock hw = new HardwareMock(2112);
     }
 }
