@@ -35,32 +35,4 @@ public class ConsoleUIService {
         Thread keyPressHandlerThread = new Thread(keyPressHandler);
         keyPressHandlerThread.start();
     }
-
-    private static String computerName;
-
-    static {
-        System.setProperty("java.awt.headless", "true");
-        logger.info("Headless: " + java.awt.GraphicsEnvironment.isHeadless());
-        try {
-            computerName = java.net.InetAddress.getLocalHost().getHostName();
-        } catch (UnknownHostException ex) {
-            logger.error("undefined hostname", ex);
-            computerName = "undefined";
-        }
-    }
-
-    public static void main(String[] args) throws MqttException, InterruptedException, IOException {
-        System.out.println("Loglevel= " + logger.getLevel());
-        URI mqttURI = URI.create("tcp://127.0.0.1:1883");
-        if (args.length > 0) {
-            mqttURI = URI.create(args[0]);
-        } else {
-            logger.info("Per default, 'tcp://127.0.0.1:1883' is chosen. You can provide another address as first argument i.e.: tcp://iot.eclipse.org:1883");
-        }
-        logger.info(mqttURI + " will be used as broker address.");
-
-        Long timeStamp = System.currentTimeMillis();
-        String instanceName = (timeStamp % 10000) + "@" + computerName;
-        ConsoleUIService consoleUIService = new ConsoleUIService(mqttURI, instanceName, instanceName);
-    }
 }

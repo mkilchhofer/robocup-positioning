@@ -48,7 +48,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>info.kilchhofer.bfh.lidar.hardwareservice.LidarService</mainClass>
+                            <mainClass>info.kilchhofer.bfh.lidar.hardwareservice.LidarServiceRunner</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -62,7 +62,7 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>
-                            <mainClass>info.kilchhofer.bfh.lidar.hardwareservice.LidarService</mainClass>
+                            <mainClass>info.kilchhofer.bfh.lidar.hardwareservice.LidarServiceRunner</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
