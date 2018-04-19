@@ -40,7 +40,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>info.kilchhofer.bfh.lidar.consoleuiservice.ConsoleUIService</mainClass>
+                            <mainClass>info.kilchhofer.bfh.lidar.consoleuiservice.ConsoleUIServiceRunner</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -54,7 +54,7 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>
-                            <mainClass>info.kilchhofer.bfh.lidar.consoleuiservice.ConsoleUIService</mainClass>
+                            <mainClass>info.kilchhofer.bfh.lidar.consoleuiservice.ConsoleUIServiceRunner</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
