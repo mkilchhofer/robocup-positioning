@@ -8,11 +8,10 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 public class HardwareMock {
     private static final Logger LOGGER = LogManager.getLogger(HardwareMock.class);
+    private static ServerSocket serverSocket;
     private static Socket connectionSocket;
     private static BufferedReader bufferedReader;
     private static DataOutputStream outputStream;
@@ -29,39 +28,162 @@ public class HardwareMock {
 
     private String contAnswerStop = "sEA LMDscandata 0";
 
-    public HardwareMock (int port) throws Exception {
-        this.foobar = "";
+    private void resetSocket() {
+        if(this.timer != null) {
+            this.timer.cancel();
+            this.timer = null;
+            LOGGER.info("reset timer");
+        }
 
-        this.connectionSocket = null;
-        ServerSocket serverSocket = new ServerSocket(port, 0);
-        while (true) {
-            if (this.connectionSocket == null) {
-                LOGGER.info("this.connectionSocket == null");
-                this.connectionSocket = serverSocket.accept();
-            }
-            if (this.bufferedReader == null) {
-                LOGGER.info("this.bufferedReader == null");
-                this.bufferedReader = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
-
-                this.outputStream = new DataOutputStream(connectionSocket.getOutputStream());
-            }
-            byte temp=0;
-            while((temp = (byte)this.bufferedReader.read()) != -1){
-                receivedByte(temp);
-                LOGGER.trace("receivedByte ended");
-            }
+        try {
             this.bufferedReader.close();
-            this.bufferedReader = null;
             LOGGER.info("bufferedReader reset");
 
             this.connectionSocket.close();
-            this.connectionSocket = null;
             LOGGER.info("connectionSocket reset");
+
+        } catch (IOException e){
+            LOGGER.error("Error closing sockets");
+        } finally {
+            this.bufferedReader = null;
+            this.connectionSocket = null;
+        }
+    }
+
+    private void resetServerSocket() {
+        resetSocket();
+
+        try {
+            this.serverSocket.close();
+        } catch (IOException e){
+            LOGGER.error("Error closing ServerSocket.");
+        } finally {
+            this.serverSocket = null;
+            LOGGER.error("ServerSocket Reset.");
+        }
+    }
+
+    private void analyseAndPerformAction(String stringToAnalyze){
+        if (stringToAnalyze.contains("sRN LMDscandata")) {
+            LOGGER.info("Single Scan requested");
+
+            try {
+                this.outputStream.write(DATA_START);
+                this.outputStream.write(singleAnswer.getBytes());
+                this.outputStream.write(DATA_END);
+                this.outputStream.flush();
+            } catch (IOException e) {
+                LOGGER.error("Single Scan error occurred", e);
+                return;
+            }
+        }
+
+        if (stringToAnalyze.contains("sEN LMDscandata 1")) {
+            LOGGER.info("cont Scan START requested");
+
+            // ACK request
+            try {
+                this.outputStream.write(DATA_START);
+                this.outputStream.write(contAnswer1.getBytes());
+                this.outputStream.write(DATA_END);
+                this.outputStream.flush();
+            } catch (IOException e) {
+                LOGGER.error("Cont Scan ACK error occurred", e);
+                return;
+            }
+
+            // Measurement data, continuous mode
+            this.startTime = System.currentTimeMillis();
+            TimerTask task = new TimerTask() {
+                @Override
+                public void run() {
+                    // task to run goes here
+                    sentMeasurements ++;
+                    LOGGER.debug("Sent {} measurements.", sentMeasurements);
+                    try {
+                        outputStream.write(DATA_START);
+                        outputStream.write(contAnswer2.getBytes());
+                        outputStream.write(DATA_END);
+                        outputStream.flush();
+                    } catch (IOException e) {
+                        LOGGER.error("cont Scan error occured", e);
+                        timer.cancel();
+                        timer = null;
+                    }
+                }
+            };
+            this.timer = new Timer();
+            long delay = 0;
+            // Schedule with 15Hz
+            long intevalPeriod = 1000/15;
+            this.timer.scheduleAtFixedRate(task, delay, intevalPeriod);
+        }
+
+        if (stringToAnalyze.contains("sEN LMDscandata 0")) {
+            LOGGER.info("cont Scan STOP requested");
+
+            timer.cancel();
+            timer = null;
+
+            // ACK request
+            try {
+                this.outputStream.write(DATA_START);
+                this.outputStream.write(contAnswerStop.getBytes());
+                this.outputStream.write(DATA_END);
+                this.outputStream.flush();
+            } catch (IOException e) {
+                LOGGER.error("cont Scan ACK stop error occured", e);
+                return;
+            }
+
+            // Statistics
+            long now = System.currentTimeMillis();
+            double diffSeconds = (double)(now - this.startTime)/1000;
+            double hertz = (double)sentMeasurements / diffSeconds;
+            LOGGER.info("Sent {} measurements in {} seconds. (= {} Hz)", sentMeasurements, diffSeconds, hertz);
+            sentMeasurements = 0;
+        }
+    }
+
+    public HardwareMock (int port) throws InterruptedException {
+        this.foobar = "";
+
+        this.connectionSocket = null;
+
+        while (true) {
+            try {
+                if (this.serverSocket == null) {
+                    this.serverSocket = new ServerSocket(port, 0);
+                }
+                if (this.connectionSocket == null) {
+                    LOGGER.info("this.connectionSocket == null");
+                    this.connectionSocket = serverSocket.accept();
+                }
+                if (this.bufferedReader == null) {
+                    LOGGER.info("this.bufferedReader == null");
+                    this.bufferedReader = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
+
+                    this.outputStream = new DataOutputStream(connectionSocket.getOutputStream());
+                }
+                byte temp = 0;
+                while ((temp = (byte) this.bufferedReader.read()) != -1) {
+                    receivedByte(temp);
+                    LOGGER.trace("receivedByte ended");
+                }
+                LOGGER.info("Client disconnected");
+                resetSocket();
+
+            } catch (IOException e){
+                LOGGER.error("General Error occurred. Restarting Mock Service in 5 sec.", e);
+                resetServerSocket();
+
+                Thread.sleep(5000);
+            }
         }
 
     }
 
-    public void receivedByte(byte value) throws IOException {
+    public void receivedByte(byte value) {
         LOGGER.trace("receivedByte '{}'", (char)value);
 
         switch (value){
@@ -72,78 +194,14 @@ public class HardwareMock {
             case 3:
                 this.foobar = this.foobar + "<ETX>";
                 LOGGER.info("ETX received. String is now: {}", this.foobar);
-
-                if (this.foobar.contains("sRN LMDscandata")) {
-                    LOGGER.info("Single Scan requested");
-
-                    this.outputStream.write(DATA_START);
-                    this.outputStream.write(singleAnswer.getBytes());
-                    this.outputStream.write(DATA_END);
-                    this.outputStream.flush();
-                }
-
-                if (this.foobar.contains("sEN LMDscandata 1")) {
-                    LOGGER.info("cont Scan START requested");
-
-                    // ACK request
-                    this.outputStream.write(DATA_START);
-                    this.outputStream.write(contAnswer1.getBytes());
-                    this.outputStream.write(DATA_END);
-                    this.outputStream.flush();
-
-                    // Measurement data, continuous mode
-                    this.startTime = System.currentTimeMillis();
-                    TimerTask task = new TimerTask() {
-                        @Override
-                        public void run() {
-                            // task to run goes here
-                            sentMeasurements ++;
-                            LOGGER.debug("Sent {} measurements.", sentMeasurements);
-                            try {
-                                outputStream.write(DATA_START);
-                                outputStream.write(contAnswer2.getBytes());
-                                outputStream.write(DATA_END);
-                                outputStream.flush();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    };
-                    this.timer = new Timer();
-                    long delay = 0;
-                    // Schedule with 15Hz
-                    long intevalPeriod = 1000/15;
-                    this.timer.scheduleAtFixedRate(task, delay, intevalPeriod);
-
-
-                }
-
-                if (this.foobar.contains("sEN LMDscandata 0")) {
-                    LOGGER.info("cont Scan STOP requested");
-
-                    timer.cancel();
-                    timer = null;
-
-                    // ACK request
-                    this.outputStream.write(DATA_START);
-                    this.outputStream.write(contAnswerStop.getBytes());
-                    this.outputStream.write(DATA_END);
-                    this.outputStream.flush();
-
-                    // Statistics
-                    long now = System.currentTimeMillis();
-                    double diffSeconds = (double)(now - this.startTime)/1000;
-                    double hertz = (double)sentMeasurements / diffSeconds;
-                    LOGGER.info("Sent {} measurements in {} seconds. (= {} Hz)", sentMeasurements, diffSeconds, hertz);
-                    sentMeasurements = 0;
-                }
+                analyseAndPerformAction(this.foobar);
                 break;
             default:
                 this.foobar = this.foobar + (char)value;
         }
     }
 
-    public static void main(String[] args) throws Exception {
-        HardwareMock hw = new HardwareMock(2112);
+    public static void main(String[] args) throws InterruptedException {
+        new HardwareMock(2112);
     }
 }
