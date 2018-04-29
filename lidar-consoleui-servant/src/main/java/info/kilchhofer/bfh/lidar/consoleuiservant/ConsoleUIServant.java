@@ -106,11 +106,22 @@ public class ConsoleUIServant {
                 this.gatewayClient.subscribe(lidarServiceContract.EVENT_MEASUREMENT, (eventTopic, eventPayload) ->{
                     Set<LidarMeasurementEvent> lidarMeasurementEvents = gatewayClient.toMessageSet(eventPayload, LidarMeasurementEvent.class);
                     for(LidarMeasurementEvent lidarMeasurementEvent : lidarMeasurementEvents) {
-                        consoleUIServiceInstances.forEach((instance) -> {
+
+                        for(ConsoleUIServiceContract instance :  consoleUIServiceInstances){
                             ConsoleIntent consoleIntent = new ConsoleIntent();
-                            consoleIntent.consoleMessage = lidarMeasurementEvent.toString();
+
+                            consoleIntent.consoleMessage = String.format("New Data received (Timestamp = %s): \n-------------\n",
+                                    lidarMeasurementEvent.getTimeStamp());
+
+                            for(Measurement measurement : lidarMeasurementEvent.getMeasurements()){
+                                consoleIntent.consoleMessage += String.format("ID = %s; Distance = %d; RSSI = %d\n",
+                                        measurement.id,
+                                        measurement.distance,
+                                        measurement.rssi);
+                            }
+
                             this.gatewayClient.readyToPublish(instance.INTENT, consoleIntent);
-                        });
+                        }
                     }
                 });
 

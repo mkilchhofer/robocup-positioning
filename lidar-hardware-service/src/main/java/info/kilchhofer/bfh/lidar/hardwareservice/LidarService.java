@@ -1,7 +1,6 @@
 package info.kilchhofer.bfh.lidar.hardwareservice;
 
 import ch.quantasy.mqtt.gateway.client.GatewayClient;
-import com.google.common.primitives.Ints;
 import laser.scanner.*;
 import laser.scanner.tim55x.TiM55x;
 import laser.scanner.tim55x.com.ComNotRunningException;
@@ -9,8 +8,6 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -26,9 +23,10 @@ public class LidarService {
         IScanListener iScanListener = new IScanListener() {
             @Override
             public void newMeasData(IScanMeasData iScanMeasData) {
-                ArrayList<Integer> distanceValues = new ArrayList<Integer>(Ints.asList(iScanMeasData.getAllDistanceValues()));
-                ArrayList<Integer> rssiValues = new ArrayList<Integer>(Ints.asList(iScanMeasData.getAllRSSIValues()));
-                gatewayClient.readyToPublish(gatewayClient.getContract().EVENT_MEASUREMENT, new LidarMeasurementEvent(distanceValues, rssiValues));
+                gatewayClient.readyToPublish(
+                        gatewayClient.getContract().EVENT_MEASUREMENT,
+                        new LidarMeasurementEvent(iScanMeasData.getAllDistanceValues(), iScanMeasData.getAllRSSIValues())
+                );
             }
         };
 
