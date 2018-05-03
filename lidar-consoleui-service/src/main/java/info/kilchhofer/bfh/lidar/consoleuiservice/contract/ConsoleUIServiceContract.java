@@ -2,8 +2,8 @@ package info.kilchhofer.bfh.lidar.consoleuiservice.contract;
 
 import ch.quantasy.mqtt.gateway.client.contract.AyamlServiceContract;
 import ch.quantasy.mqtt.gateway.client.message.Message;
-import info.kilchhofer.bfh.lidar.consoleuiservice.event.ConsoleKeyPressEvent;
-import info.kilchhofer.bfh.lidar.consoleuiservice.intent.ConsoleIntent;
+import info.kilchhofer.bfh.lidar.consoleuiservice.contract.event.ConsoleKeyPressEvent;
+import info.kilchhofer.bfh.lidar.consoleuiservice.contract.intent.ConsoleIntent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

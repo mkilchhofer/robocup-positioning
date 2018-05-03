@@ -1,6 +1,14 @@
 package info.kilchhofer.bfh.lidar.hardwareservice;
 
 import ch.quantasy.mqtt.gateway.client.GatewayClient;
+import info.kilchhofer.bfh.lidar.hardwareservice.contract.LidarServiceContract;
+import info.kilchhofer.bfh.lidar.hardwareservice.contract.event.Measurement;
+import info.kilchhofer.bfh.lidar.hardwareservice.contract.event.LidarMeasurementEvent;
+import info.kilchhofer.bfh.lidar.hardwareservice.contract.intent.LidarIntent;
+import info.kilchhofer.bfh.lidar.hardwareservice.contract.status.LidarState;
+import laser.datahandling.IScanData;
+import laser.datahandling.IScanReflectData;
+import laser.datahandling.scandata.ScanDataFact;
 import laser.scanner.*;
 import laser.scanner.tim55x.TiM55x;
 import laser.scanner.tim55x.com.ComNotRunningException;
@@ -8,6 +16,8 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -23,9 +33,31 @@ public class LidarService {
         IScanListener iScanListener = new IScanListener() {
             @Override
             public void newMeasData(IScanMeasData iScanMeasData) {
+                IScanData scanData = ScanDataFact.create(iScanMeasData);
+
+                // Don't use this, as is not fully implemented !
+                // This is becasue of 'throw new UnsupportedOperationException("Not supported yet.")' in every Getter
+                // Method other than FirmwareVersion and FirmwareVersion is always '1'.
+                // -> But if we read the Firmware with SOPAS Engineering Tool it is "V2.54". -> useless
+                //IScannerData scannerData = scanData.getScannerData();
+
+
+                List<IScanReflectData> scanMeasurementData = scanData.getScanMeasurementData();
+
+                ArrayList<Measurement> measurements = new ArrayList<>();
+                int index = 0;
+                for(IScanReflectData iScanReflectData : scanMeasurementData){
+                    measurements.add(new Measurement(
+                            index++,
+                            iScanReflectData.getAngle(),
+                            iScanReflectData.getDistance(),
+                            iScanReflectData.getRSSIValue()
+                    ));
+                }
+
                 gatewayClient.readyToPublish(
                         gatewayClient.getContract().EVENT_MEASUREMENT,
-                        new LidarMeasurementEvent(iScanMeasData.getAllDistanceValues(), iScanMeasData.getAllRSSIValues())
+                        new LidarMeasurementEvent(measurements)
                 );
             }
         };

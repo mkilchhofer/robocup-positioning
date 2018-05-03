@@ -1,4 +1,4 @@
-package info.kilchhofer.bfh.lidar.consoleuiservice.event;
+package info.kilchhofer.bfh.lidar.consoleuiservice.contract.event;
 
 import ch.quantasy.mqtt.gateway.client.message.AnEvent;
 

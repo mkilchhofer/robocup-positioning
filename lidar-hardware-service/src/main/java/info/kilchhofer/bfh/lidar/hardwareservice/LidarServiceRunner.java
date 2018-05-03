@@ -14,6 +14,10 @@ import java.util.Arrays;
 public class LidarServiceRunner {
     private static final Logger LOGGER = LogManager.getLogger(LidarServiceRunner.class);
     private static String computerName;
+    private static final int DEFAULT_SENSOR_PORT = 2112;
+    //private static final String DEFAULT_SENSOR_ADDRESS = "192.168.91.2";
+    private static final String DEFAULT_SENSOR_ADDRESS = "127.0.0.1";
+    private static final String DEFAULT_BROKER_ADDRESS = "tcp://127.0.0.1:1883";
 
     static {
         try {
@@ -26,7 +30,7 @@ public class LidarServiceRunner {
 
     public static void main(String[] args) throws MqttException, InterruptedException, IOException {
         System.out.println("Loglevel= " + LOGGER.getLevel());
-        URI mqttURI = URI.create("tcp://127.0.0.1:1883");
+        URI mqttURI = URI.create(DEFAULT_BROKER_ADDRESS);
 
         Options options = new Options();
         Option broker = new Option("b", "broker", true, "brocker to use, format: tcp://127.0.0.1:1883");
@@ -58,27 +62,25 @@ public class LidarServiceRunner {
         if (brokerArg != null) {
             mqttURI = URI.create(brokerArg);
         } else {
-            LOGGER.info("Per default, 'tcp://127.0.0.1:1883' is chosen. You can provide another address as first argument i.e.: tcp://iot.eclipse.org:1883");
+            LOGGER.info("Per default, '{}' is chosen.", DEFAULT_BROKER_ADDRESS);
         }
 
         ArrayList<String> sensorArgsList = new ArrayList<>();
         if (sensorArgs != null) {
             sensorArgsList.addAll(Arrays.asList(sensorArgs));
         } else {
-            sensorArgsList.add("192.168.91.2");
-            LOGGER.info("Per default, we expect our lidar sensor on IP '192.168.91.2.");
+            sensorArgsList.add(DEFAULT_SENSOR_ADDRESS);
+            LOGGER.info("Per default, we expect our lidar sensor on IP '{}", DEFAULT_SENSOR_ADDRESS);
         }
 
         LOGGER.info("Configured {} lidar sensors: {}", sensorArgsList.size(), sensorArgsList);
         LOGGER.info("{} will be used as broker address.", mqttURI);
 
-        int lidarPort = 2112;
-
         for (String lidarIp : sensorArgsList) {
             String mqttClientName = lidarIp + "@" + computerName;
             String instanceName = mqttClientName;
             try {
-                LidarService lidarService = new LidarService(mqttURI, mqttClientName, instanceName, lidarIp, lidarPort);
+                LidarService lidarService = new LidarService(mqttURI, mqttClientName, instanceName, lidarIp, DEFAULT_SENSOR_PORT);
 
             } catch (Exception ex){
                 LOGGER.error("{}: Connection error", mqttClientName, ex);

@@ -1,4 +1,4 @@
-package info.kilchhofer.bfh.lidar.hardwareservice;
+package info.kilchhofer.bfh.lidar.hardwareservice.contract.intent;
 
 import ch.quantasy.mqtt.gateway.client.message.AnIntent;
 

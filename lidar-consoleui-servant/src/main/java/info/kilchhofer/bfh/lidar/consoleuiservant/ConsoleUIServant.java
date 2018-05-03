@@ -3,17 +3,20 @@ package info.kilchhofer.bfh.lidar.consoleuiservant;
 import ch.quantasy.mqtt.gateway.client.ConnectionStatus;
 import ch.quantasy.mqtt.gateway.client.GatewayClient;
 import info.kilchhofer.bfh.lidar.consoleuiservant.contract.ConsoleUIServantContract;
-import info.kilchhofer.bfh.lidar.consoleuiservice.event.ConsoleKeyPressEvent;
-import info.kilchhofer.bfh.lidar.consoleuiservice.intent.ConsoleIntent;
-import info.kilchhofer.bfh.lidar.hardwareservice.*;
+import info.kilchhofer.bfh.lidar.consoleuiservice.contract.event.ConsoleKeyPressEvent;
+import info.kilchhofer.bfh.lidar.consoleuiservice.contract.intent.ConsoleIntent;
+import info.kilchhofer.bfh.lidar.hardwareservice.contract.*;
+import info.kilchhofer.bfh.lidar.hardwareservice.contract.event.LidarMeasurementEvent;
+import info.kilchhofer.bfh.lidar.hardwareservice.contract.event.Measurement;
+import info.kilchhofer.bfh.lidar.hardwareservice.contract.intent.LidarCommand;
+import info.kilchhofer.bfh.lidar.hardwareservice.contract.intent.LidarIntent;
+import info.kilchhofer.bfh.lidar.hardwareservice.contract.status.LidarState;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import info.kilchhofer.bfh.lidar.consoleuiservice.contract.ConsoleUIServiceContract;
 
-import java.io.IOException;
 import java.net.URI;
-import java.net.UnknownHostException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
@@ -114,8 +117,8 @@ public class ConsoleUIServant {
                                     lidarMeasurementEvent.getTimeStamp());
 
                             for(Measurement measurement : lidarMeasurementEvent.getMeasurements()){
-                                consoleIntent.consoleMessage += String.format("ID = %s; Distance = %d; RSSI = %d\n",
-                                        measurement.id,
+                                consoleIntent.consoleMessage += String.format("Angle = %s; Distance = %d; RSSI = %d\n",
+                                        measurement.angle,
                                         measurement.distance,
                                         measurement.rssi);
                             }

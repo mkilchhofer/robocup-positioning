@@ -1,4 +1,4 @@
-package info.kilchhofer.bfh.lidar.hardwareservice;
+package info.kilchhofer.bfh.lidar.hardwareservice.contract.status;
 
 import ch.quantasy.mqtt.gateway.client.message.AStatus;
 import laser.scanner.IScanOperator;

@@ -1,7 +1,10 @@
-package info.kilchhofer.bfh.lidar.hardwareservice;
+package info.kilchhofer.bfh.lidar.hardwareservice.contract;
 
 import ch.quantasy.mqtt.gateway.client.contract.AyamlServiceContract;
 import ch.quantasy.mqtt.gateway.client.message.Message;
+import info.kilchhofer.bfh.lidar.hardwareservice.contract.intent.LidarIntent;
+import info.kilchhofer.bfh.lidar.hardwareservice.contract.event.LidarMeasurementEvent;
+import info.kilchhofer.bfh.lidar.hardwareservice.contract.status.LidarState;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
