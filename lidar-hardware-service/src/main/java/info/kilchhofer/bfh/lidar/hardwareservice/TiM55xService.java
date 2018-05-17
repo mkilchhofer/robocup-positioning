@@ -23,12 +23,12 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class LidarService {
-    private IScan scanner;
+public class TiM55xService {
+    private IScan lidarSensor;
     private final GatewayClient<LidarServiceContract> gatewayClient;
-    private static final Logger logger = LogManager.getLogger(LidarService.class);
+    private static final Logger logger = LogManager.getLogger(TiM55xService.class);
 
-    public LidarService(URI mqttURI, String mqttClientName, String instanceName, String lidarIp, int lidarPort) throws MqttException, IOException {
+    public TiM55xService(URI mqttURI, String mqttClientName, String instanceName, String lidarIp, int lidarPort) throws MqttException, IOException {
         this.gatewayClient = new GatewayClient<LidarServiceContract>(mqttURI, mqttClientName, new LidarServiceContract(instanceName));
         IScanListener iScanListener = new IScanListener() {
             @Override
@@ -75,25 +75,26 @@ public class LidarService {
             }
         };
 
-        this.scanner = new TiM55x(iScanListener, iScanOperator, lidarIp, lidarPort);
+        this.lidarSensor = new TiM55x(iScanListener, iScanOperator, lidarIp, lidarPort);
         this.gatewayClient.connect();
         this.gatewayClient.subscribe(gatewayClient.getContract().INTENT + "/#", (topic, payload) -> {
 
             try {
 
-                for(LidarIntent intent : gatewayClient.toMessageSet(payload, LidarIntent.class)){
-                    logger.log(Level.INFO, "{}: Received intent: {} ", instanceName, intent);
-                    switch (intent.command){
-                        case CONT_MEAS_START:
-                            this.scanner.startContMeas();
-                            break;
-                        case CONT_MEAS_STOP:
-                            this.scanner.stopContMeas();
-                            break;
-                        case SINGLE_MEAS:
-                            this.scanner.runSingleMeas();
-                            break;
-                    }
+                // take only the last Intent from MessageSet
+                LidarIntent intent = gatewayClient.toMessageSet(payload, LidarIntent.class).last();
+                logger.log(Level.INFO, "{}: Received intent: {} ", instanceName, intent);
+
+                switch (intent.command){
+                    case CONT_MEAS_START:
+                        this.lidarSensor.startContMeas();
+                        break;
+                    case CONT_MEAS_STOP:
+                        this.lidarSensor.stopContMeas();
+                        break;
+                    case SINGLE_MEAS:
+                        this.lidarSensor.runSingleMeas();
+                        break;
                 }
 
             } catch (IOException e) {

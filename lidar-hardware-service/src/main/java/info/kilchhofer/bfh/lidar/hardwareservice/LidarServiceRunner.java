@@ -11,13 +11,14 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import static info.kilchhofer.bfh.lidar.Constants.DEFAULT_BROKER_ADDRESS;
+
 public class LidarServiceRunner {
     private static final Logger LOGGER = LogManager.getLogger(LidarServiceRunner.class);
     private static String computerName;
     private static final int DEFAULT_SENSOR_PORT = 2112;
     //private static final String DEFAULT_SENSOR_ADDRESS = "192.168.91.2";
     private static final String DEFAULT_SENSOR_ADDRESS = "127.0.0.1";
-    private static final String DEFAULT_BROKER_ADDRESS = "tcp://127.0.0.1:1883";
 
     static {
         try {
@@ -80,7 +81,7 @@ public class LidarServiceRunner {
             String mqttClientName = lidarIp + "@" + computerName;
             String instanceName = mqttClientName;
             try {
-                LidarService lidarService = new LidarService(mqttURI, mqttClientName, instanceName, lidarIp, DEFAULT_SENSOR_PORT);
+                TiM55xService tim55xService = new TiM55xService(mqttURI, mqttClientName, instanceName, lidarIp, DEFAULT_SENSOR_PORT);
 
             } catch (Exception ex){
                 LOGGER.error("{}: Connection error", mqttClientName, ex);
