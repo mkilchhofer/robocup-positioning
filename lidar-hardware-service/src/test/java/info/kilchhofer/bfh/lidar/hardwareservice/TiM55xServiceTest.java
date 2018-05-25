@@ -58,7 +58,7 @@ public class TiM55xServiceTest {
         try {
             // Embedded Broker
             LOGGER.info("Starting Embedded Broker...");
-            EmbeddedLauncher embeddedLauncher = new EmbeddedLauncher();
+            EmbeddedBrokerLauncher embeddedBrokerLauncher = new EmbeddedBrokerLauncher();
 
             // Mock Hardware
             LOGGER.info("Starting Mock Hardware...");
