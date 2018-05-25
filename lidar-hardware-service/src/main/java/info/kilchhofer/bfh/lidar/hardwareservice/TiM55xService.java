@@ -1,6 +1,7 @@
 package info.kilchhofer.bfh.lidar.hardwareservice;
 
 import ch.quantasy.mqtt.gateway.client.GatewayClient;
+import ch.quantasy.mqtt.gateway.client.message.MessageReceiver;
 import info.kilchhofer.bfh.lidar.hardwareservice.contract.LidarServiceContract;
 import info.kilchhofer.bfh.lidar.hardwareservice.contract.event.Measurement;
 import info.kilchhofer.bfh.lidar.hardwareservice.contract.event.LidarMeasurementEvent;
@@ -45,10 +46,8 @@ public class TiM55xService {
                 List<IScanReflectData> scanMeasurementData = scanData.getScanMeasurementData();
 
                 ArrayList<Measurement> measurements = new ArrayList<>();
-                int index = 0;
                 for(IScanReflectData iScanReflectData : scanMeasurementData){
                     measurements.add(new Measurement(
-                            index++,
                             iScanReflectData.getAngle(),
                             iScanReflectData.getDistance(),
                             iScanReflectData.getRSSIValue()
@@ -75,36 +74,39 @@ public class TiM55xService {
             }
         };
 
+        MessageReceiver intentMessageReceiver = new MessageReceiver() {
+            @Override
+            public void messageReceived(String topic, byte[] payload) throws Exception {
+                try {
+                    // take only the last Intent from MessageSet
+                    LidarIntent intent = gatewayClient.toMessageSet(payload, LidarIntent.class).last();
+                    logger.log(Level.INFO, "{}: Received intent: {} ", instanceName, intent);
+
+                    switch (intent.command){
+                        case CONT_MEAS_START:
+                            lidarSensor.startContMeas();
+                            break;
+                        case CONT_MEAS_STOP:
+                            lidarSensor.stopContMeas();
+                            break;
+                        case SINGLE_MEAS:
+                            lidarSensor.runSingleMeas();
+                            break;
+                    }
+
+                } catch (IOException e) {
+                    logger.error((String)null, e);
+                } catch (ComNotRunningException e) {
+                    logger.error((String)null, e);
+                } catch (LaserScanStateException e) {
+                    logger.error((String)null, e);
+                }
+            }
+        };
+
         this.lidarSensor = new TiM55x(iScanListener, iScanOperator, lidarIp, lidarPort);
         this.gatewayClient.connect();
-        this.gatewayClient.subscribe(gatewayClient.getContract().INTENT + "/#", (topic, payload) -> {
 
-            try {
-
-                // take only the last Intent from MessageSet
-                LidarIntent intent = gatewayClient.toMessageSet(payload, LidarIntent.class).last();
-                logger.log(Level.INFO, "{}: Received intent: {} ", instanceName, intent);
-
-                switch (intent.command){
-                    case CONT_MEAS_START:
-                        this.lidarSensor.startContMeas();
-                        break;
-                    case CONT_MEAS_STOP:
-                        this.lidarSensor.stopContMeas();
-                        break;
-                    case SINGLE_MEAS:
-                        this.lidarSensor.runSingleMeas();
-                        break;
-                }
-
-            } catch (IOException e) {
-                logger.error((String)null, e);
-            } catch (ComNotRunningException e) {
-                logger.error((String)null, e);
-            } catch (LaserScanStateException e) {
-                logger.error((String)null, e);
-            }
-
-        });
+        this.gatewayClient.subscribe(gatewayClient.getContract().INTENT + "/#", intentMessageReceiver);
     }
 }
