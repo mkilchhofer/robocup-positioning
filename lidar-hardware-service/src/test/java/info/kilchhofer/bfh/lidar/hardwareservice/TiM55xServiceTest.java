@@ -32,7 +32,7 @@ public class TiM55xServiceTest {
     ConnectionStatus resultConnectionStatus;
     LidarState resultLidarState;
     static int LIDAR_PORT = 2112;
-    static String LIDAR_IP = "192.168.91.2";
+    static String LIDAR_IP = "127.0.0.1";
 
     // Do not hardcode topics for autodetect service instances
     private final LidarServiceContract tempLidarServiceContract = new LidarServiceContract("+");
