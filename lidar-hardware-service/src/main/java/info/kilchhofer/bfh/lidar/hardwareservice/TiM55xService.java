@@ -27,7 +27,7 @@ import org.apache.logging.log4j.Logger;
 public class TiM55xService {
     private IScan lidarSensor;
     private final GatewayClient<LidarServiceContract> gatewayClient;
-    private static final Logger logger = LogManager.getLogger(TiM55xService.class);
+    private static final Logger LOGGER = LogManager.getLogger(TiM55xService.class);
 
     public TiM55xService(URI mqttURI, String mqttClientName, String instanceName, String lidarIp, int lidarPort) throws MqttException, IOException {
         this.gatewayClient = new GatewayClient<LidarServiceContract>(mqttURI, mqttClientName, new LidarServiceContract(instanceName));
@@ -64,13 +64,13 @@ public class TiM55xService {
         IScanOperator iScanOperator = new IScanOperator() {
             @Override
             public void newStateActice(State state) {
-                logger.info("{}: New laser state active: {}", instanceName, state);
+                LOGGER.info("{}: New laser state active: {}", instanceName, state);
                 gatewayClient.readyToPublish(gatewayClient.getContract().STATUS_STATE, new LidarState(state));
             }
 
             @Override
             public void errorOccured() {
-                logger.error("{}: Laser ERROR", instanceName);
+                LOGGER.error("{}: Laser ERROR", instanceName);
             }
         };
 
@@ -80,7 +80,7 @@ public class TiM55xService {
                 try {
                     // take only the last Intent from MessageSet
                     LidarIntent intent = gatewayClient.toMessageSet(payload, LidarIntent.class).last();
-                    logger.log(Level.INFO, "{}: Received intent: {} ", instanceName, intent);
+                    LOGGER.log(Level.INFO, "{}: Received intent: {} ", instanceName, intent);
 
                     switch (intent.command){
                         case CONT_MEAS_START:
@@ -95,11 +95,11 @@ public class TiM55xService {
                     }
 
                 } catch (IOException e) {
-                    logger.error((String)null, e);
+                    LOGGER.error((String)null, e);
                 } catch (ComNotRunningException e) {
-                    logger.error((String)null, e);
+                    LOGGER.error((String)null, e);
                 } catch (LaserScanStateException e) {
-                    logger.error((String)null, e);
+                    LOGGER.error((String)null, e);
                 }
             }
         };

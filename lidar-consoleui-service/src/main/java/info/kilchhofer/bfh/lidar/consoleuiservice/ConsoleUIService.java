@@ -3,20 +3,16 @@ package info.kilchhofer.bfh.lidar.consoleuiservice;
 import ch.quantasy.mqtt.gateway.client.GatewayClient;
 import info.kilchhofer.bfh.lidar.consoleuiservice.contract.ConsoleUIServiceContract;
 import info.kilchhofer.bfh.lidar.consoleuiservice.contract.event.ConsoleKeyPressEvent;
-import info.kilchhofer.bfh.lidar.consoleuiservice.helper.KeyPressHandler;
 import info.kilchhofer.bfh.lidar.consoleuiservice.contract.intent.ConsoleIntent;
+import info.kilchhofer.bfh.lidar.consoleuiservice.helper.KeyPressHandler;
 import org.eclipse.paho.client.mqttv3.MqttException;
 
 import java.io.IOException;
 import java.net.URI;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 public class ConsoleUIService {
 
     private final GatewayClient<ConsoleUIServiceContract> gatewayClient;
-    private static final Logger logger = LogManager.getLogger(ConsoleUIService.class);
     private KeyPressHandler keyPressHandler;
 
     public ConsoleUIService(URI mqttURI, String mqttClientName, String instanceName) throws MqttException, IOException, InterruptedException {

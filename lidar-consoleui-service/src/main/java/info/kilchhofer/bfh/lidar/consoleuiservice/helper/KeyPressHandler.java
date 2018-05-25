@@ -11,7 +11,7 @@ import java.nio.charset.Charset;
 
 public class KeyPressHandler implements Runnable {
 
-    private static final Logger logger = LogManager.getLogger(KeyPressHandler.class);
+    private static final Logger LOGGER = LogManager.getLogger(KeyPressHandler.class);
     private IKeyPress keyPressCallback;
     private Terminal terminal;
 
@@ -37,10 +37,10 @@ public class KeyPressHandler implements Runnable {
                     e.printStackTrace();
                 }
             } else if (key.getCharacter() == 'q'){
-                logger.info("'q' Pressed. Exiting...");
+                LOGGER.info("'q' Pressed. Exiting...");
                 System.exit(0);
             } else {
-                logger.info("Pressed '{}'.", key.getCharacter());
+                LOGGER.info("Pressed '{}'.", key.getCharacter());
                 keyPressCallback.keyPressed(key.getCharacter());
             }
         }
