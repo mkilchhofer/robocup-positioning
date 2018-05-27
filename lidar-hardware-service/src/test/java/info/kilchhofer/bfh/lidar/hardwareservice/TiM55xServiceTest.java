@@ -10,15 +10,18 @@ import laser.scanner.IScanOperator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.paho.client.mqttv3.MqttException;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.UnknownHostException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TiM55xServiceTest {
     private static final Logger LOGGER = LogManager.getLogger(TiM55xServiceTest.class);
@@ -47,7 +50,7 @@ public class TiM55xServiceTest {
         }
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpBeforeClass() {
         mqttURI = URI.create("tcp://127.0.0.1:11234");
         //mqttURI = URI.create(DEFAULT_BROKER_ADDRESS);
@@ -82,10 +85,11 @@ public class TiM55xServiceTest {
             Thread.sleep(1000);
 
         } catch (MqttException e) {
-            Assert.fail("MqttException during Setup");
+            fail("MqttException during Setup");
+
             LOGGER.error("Setup Exception: ", e);
         } catch (IOException e) {
-            Assert.fail("IOException during Setup");
+            fail("IOException during Setup");
             LOGGER.error("Setup Exception: ", e);
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -93,6 +97,7 @@ public class TiM55xServiceTest {
     }
 
     @Test
+    @DisplayName("Start TiM55x Service")
     public void bringTiM55xServiceUp() {
         LOGGER.info("bringTiM55xServiceUp...");
         // TiM Service
@@ -101,17 +106,19 @@ public class TiM55xServiceTest {
             Thread.sleep(2000);
             
         } catch (MqttException e) {
-            Assert.fail("MqttException during Setup");
+            fail("MqttException during Setup");
             LOGGER.error("Setup Exception: ", e);
         } catch (IOException e) {
-            Assert.fail("IOException during Setup");
+            fail("IOException during Setup");
             LOGGER.error("Setup Exception: ", e);
         } catch (InterruptedException e) {
+            fail("InterruptedException during Setup");
             e.printStackTrace();
         }
     }
 
     @Test
+    @DisplayName("Subscription to Connection Status Topic")
     public void subscribeStatus() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
         LOGGER.info("subscribing to Lidar Service Topic '{}' ...", tempLidarServiceContract.STATUS_CONNECTION);
@@ -127,10 +134,11 @@ public class TiM55xServiceTest {
 
         this.gatewayClient.subscribe(tempLidarServiceContract.STATUS_CONNECTION, messageReceiver);
         latch.await(100, TimeUnit.SECONDS);
-        Assert.assertEquals("online", resultConnectionStatus.value);
+        assertEquals("online", resultConnectionStatus.value);
     }
 
     @Test
+    @DisplayName("Subscription to Sensor State Topic")
     public void subscribeState() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
 
@@ -142,7 +150,7 @@ public class TiM55xServiceTest {
             latch.countDown();
         });
         latch.await(100, TimeUnit.SECONDS);
-        Assert.assertEquals(IScanOperator.State.STANDBY, resultLidarState.state);
+        assertEquals(IScanOperator.State.STANDBY, resultLidarState.state);
     }
 
 }
