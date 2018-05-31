@@ -26,7 +26,7 @@ public class MinNrReflectFilter
         
         for(ExtractedLine extractedLine : extractedLines)
         {
-            if(extractedLine.getAllRelatedReflections().size() >= this.minNrReflections)
+            if(extractedLine.getRelatedPoints().size() >= this.minNrReflections)
             {
                 filteredLines.add(extractedLine);
             }
@@ -36,7 +36,7 @@ public class MinNrReflectFilter
                         + " Min reflections: " 
                         + this.minNrReflections 
                         + " Related reflections: " 
-                        + extractedLine.getAllRelatedReflections().size());*/
+                        + extractedLine.getRelatedPoints().size());*/
             }
         }
         

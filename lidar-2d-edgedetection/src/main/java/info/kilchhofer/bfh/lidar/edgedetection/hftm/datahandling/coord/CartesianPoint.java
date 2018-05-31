@@ -1,37 +1,69 @@
 
 package info.kilchhofer.bfh.lidar.edgedetection.hftm.datahandling.coord;
 
-import java.awt.*;
+import ch.quantasy.mqtt.gateway.client.message.annotations.AValidator;
+import ch.quantasy.mqtt.gateway.client.message.annotations.Range;
+import java.awt.Point;
 
 /**
  *
  * @author Simon Bühlmann
  */
 // refactored from CoordScanData -> CartesianPoint
-public class CartesianPoint
+public class CartesianPoint extends AValidator
 {
-    private int x, y, reflection;
+    @Range(from = Integer.MIN_VALUE,to=Integer.MAX_VALUE)
+    private int x;
+    @Range(from = Integer.MIN_VALUE,to=Integer.MAX_VALUE)
+    private int y;
     
-    public CartesianPoint(int x, int y, int reflection)
+    public CartesianPoint(int x, int y)
     {
         this.x = x;
         this.y = y;
-        this.reflection = reflection;
     }
 
     // needed for deserialization
     public CartesianPoint()
     {
     }
-    
-    // getter
-    public Point getPoint()
-    {
-        return new Point(this.x, this.y);
+
+    public int getX() {
+        return x;
     }
 
-    public int getReflection()
-    {
-        return reflection;
+    public int getY() {
+        return y;
     }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 79 * hash + this.x;
+        hash = 79 * hash + this.y;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final CartesianPoint other = (CartesianPoint) obj;
+        if (this.x != other.x) {
+            return false;
+        }
+        if (this.y != other.y) {
+            return false;
+        }
+        return true;
+    }
+    
+    
 }

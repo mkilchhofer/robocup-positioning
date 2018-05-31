@@ -1,5 +1,6 @@
 package info.kilchhofer.bfh.lidar.edgedetection;
 
+import info.kilchhofer.bfh.lidar.edgedetection.binding.EdgeDetectionService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.paho.client.mqttv3.MqttException;

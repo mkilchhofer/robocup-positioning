@@ -1,8 +1,8 @@
-package info.kilchhofer.bfh.lidar.edgedetection;
+package info.kilchhofer.bfh.lidar.edgedetection.binding;
 
 import ch.quantasy.mqtt.gateway.client.GatewayClient;
-import info.kilchhofer.bfh.lidar.edgedetection.contract.EdgeDetectionServiceContract;
-import info.kilchhofer.bfh.lidar.edgedetection.contract.intent.EdgeDetectionIntent;
+import info.kilchhofer.bfh.lidar.edgedetection.binding.EdgeDetectionServiceContract;
+import info.kilchhofer.bfh.lidar.edgedetection.binding.EdgeDetectionIntent;
 import info.kilchhofer.bfh.lidar.edgedetection.hftm.datahandling.lineExtraction.ExtractedLine;
 import info.kilchhofer.bfh.lidar.edgedetection.hftm.datahandling.lineExtraction.LineExtracter;
 import org.apache.logging.log4j.LogManager;
@@ -26,6 +26,7 @@ public class EdgeDetectionService {
                 LineExtracter lineExtracter = new LineExtracter(intent.toleranceMax);
 
                 List<ExtractedLine> lines = lineExtracter.extractLines(intent.positions);
+                this.gatewayClient.readyToPublish(gatewayClient.getContract().EVENT_EDGE_DETECTED+"/"+intent.id, new EdgeDetectionEvent(intent.id,lines));
                 LOGGER.info("# of extracted: {}", lines.size());
             }
         });

@@ -1,6 +1,8 @@
 
 package info.kilchhofer.bfh.lidar.edgedetection.hftm.datahandling.lineExtraction;
 
+import ch.quantasy.mqtt.gateway.client.message.annotations.AValidator;
+import ch.quantasy.mqtt.gateway.client.message.annotations.NonNull;
 import info.kilchhofer.bfh.lidar.edgedetection.hftm.datahandling.coord.CartesianPoint;
 
 import java.util.List;
@@ -9,27 +11,28 @@ import java.util.List;
  *
  * @author sdb
  */
-public class ExtractedLine
+public class ExtractedLine extends AValidator
 {
-    private List<CartesianPoint> relatedReflections;
+    @NonNull
+    private List<CartesianPoint> relatedPoints;
     
-    public ExtractedLine(List<CartesianPoint> relatedReflections)
+    public ExtractedLine(List<CartesianPoint> relatedPoints)
     {
-        this.relatedReflections = relatedReflections;
+        this.relatedPoints = relatedPoints;
     }
     
-    public CartesianPoint getStartReflection()
+    public CartesianPoint getStartPoint()
     {
-        return relatedReflections.get(0);
+        return relatedPoints.get(0);
     }
     
-    public CartesianPoint getEndReflection()
+    public CartesianPoint getEndPoint()
     {
-        return relatedReflections.get(relatedReflections.size() - 1);
+        return relatedPoints.get(relatedPoints.size() - 1);
     }
     
-    public List<CartesianPoint> getAllRelatedReflections()
+    public List<CartesianPoint> getRelatedPoints()
     {
-        return relatedReflections;
+        return relatedPoints;
     }
 }

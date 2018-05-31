@@ -4,24 +4,25 @@ import info.kilchhofer.bfh.lidar.edgedetection.hftm.datahandling.coord.Cartesian
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  *
  * @author sdb
  */
-public class LineExtracter
-{
+public class LineExtracter {
+
     private int toleranceMax;
-    
-    public LineExtracter(int toleranceMax)
-    {
+
+    public LineExtracter(int toleranceMax) {
         this.toleranceMax = toleranceMax;
     }
-    
-    public synchronized List<ExtractedLine> extractLines(List<CartesianPoint> scandatas)
-    {
+
+    public synchronized List<ExtractedLine> extractLines(Set<CartesianPoint> points) {
         List<ExtractedLine> tempResults = new ArrayList<>();
+        List<CartesianPoint> scandatas = new ArrayList<>(points);
 
         // Douglas Peucker Algorithmus
         // finde Punkt mit grösstem Abstand
@@ -31,32 +32,30 @@ public class LineExtracter
 
         Straight straight = new Straight(
                 new Vector(
-                        scandatas.get(0).getPoint().x,
-                        scandatas.get(0).getPoint().y,
+                        scandatas.get(0).getX(),
+                        scandatas.get(0).getY(),
                         0),
                 VectorService.calculateConnectionVector(
                         new Vector(
-                                scandatas.get(0).getPoint().x,
-                                scandatas.get(0).getPoint().y,
+                                scandatas.get(0).getX(),
+                                scandatas.get(0).getY(),
                                 0),
                         new Vector(
-                                scandatas.get(scandatas.size() - 1).getPoint().x,
-                                scandatas.get(scandatas.size() - 1).getPoint().y,
+                                scandatas.get(scandatas.size() - 1).getX(),
+                                scandatas.get(scandatas.size() - 1).getY(),
                                 0)
                 ));
 
         //System.out.println("1");
-        for (int cnt = 1; cnt < scandatas.size(); cnt++)
-        {
+        for (int cnt = 1; cnt < scandatas.size(); cnt++) {
             double dCurrent = VectorService.calculateDistancePointToStraight(
                     straight,
                     new Vector(
-                            scandatas.get(cnt).getPoint().x,
-                            scandatas.get(cnt).getPoint().y,
+                            scandatas.get(cnt).getX(),
+                            scandatas.get(cnt).getY(),
                             0));
 
-            if (dCurrent > distanceMax)
-            {
+            if (dCurrent > distanceMax) {
                 distanceMax = dCurrent;
                 indexOfDistanceMax = cnt;
             }
@@ -64,25 +63,22 @@ public class LineExtracter
 
         //System.out.println("2");
         // max Distanz mit max Toleranz vergleichen
-        if (distanceMax > toleranceMax)
-        {
+        if (distanceMax > toleranceMax) {
             // Toleranz überschritten. Scandatas splitten und per Rekursion erneut probieren.
             tempResults.addAll(extractLines(
-                            splittScandataArray(
-                                    0, // start
-                                    indexOfDistanceMax,
-                                    scandatas))
+                    new HashSet<>(splittScandataArray(
+                            0, // start
+                            indexOfDistanceMax,
+                            scandatas)))
             );
 
             tempResults.addAll(extractLines(
-                            splittScandataArray(
-                                    indexOfDistanceMax,
-                                    scandatas.size() - 1, // end
-                                    scandatas))
+                    new HashSet<>(splittScandataArray(
+                            indexOfDistanceMax,
+                            scandatas.size() - 1, // end
+                            scandatas)))
             );
-        }
-        else
-        {
+        } else {
             //System.out.println("3");
             /*System.out.println("Straight found! Support vector"
                     + " X: " + straight.getSupportVector().getX() 
@@ -99,37 +95,33 @@ public class LineExtracter
         return tempResults;
     }
 
-    private List<CartesianPoint> splittScandataArray(int startIndex, int lastIndex, List<CartesianPoint> datas)
-    {
+    private List<CartesianPoint> splittScandataArray(int startIndex, int lastIndex, List<CartesianPoint> datas) {
 
         List<CartesianPoint> temp = new ArrayList<>(lastIndex - startIndex + 1);
-        for (int cnt = startIndex; cnt <= lastIndex; cnt++)
-        {
+        for (int cnt = startIndex; cnt <= lastIndex; cnt++) {
             temp.add(datas.get(cnt));
         }
 
         return temp;
     }
-    
+
     // getter & setter
-    public int getToleranceMax()
-    {
+    public int getToleranceMax() {
         return toleranceMax;
     }
 
-    public synchronized void setToleranceMax(int toleranceMax)
-    {
+    public synchronized void setToleranceMax(int toleranceMax) {
         this.toleranceMax = toleranceMax;
     }
 
     public static void main(String[] args) throws IOException {
-        List<CartesianPoint> datas = new ArrayList<>();
-        datas.add(new CartesianPoint(-200, 200, 0));
-        datas.add(new CartesianPoint(-200, 600, 0));
-        datas.add(new CartesianPoint(400, 1200, 0));
-        datas.add(new CartesianPoint(400, 800, 0));
-        datas.add(new CartesianPoint(400, 200, 0));
-        
+        Set<CartesianPoint> datas = new HashSet<>();
+        datas.add(new CartesianPoint(-200, 200));
+        datas.add(new CartesianPoint(-200, 600));
+        datas.add(new CartesianPoint(400, 1200));
+        datas.add(new CartesianPoint(400, 800));
+        datas.add(new CartesianPoint(400, 200));
+
         List<ExtractedLine> lines = new LineExtracter(10).extractLines(datas);
         System.out.println(lines.size());
     }

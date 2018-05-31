@@ -6,11 +6,11 @@ import info.kilchhofer.bfh.lidar.edgedetection.hftm.datahandling.IScanReflectDat
  *
  * @author simon.buehlmann
  */
-public class CoordCalc
+public class PolarToCartesian
 {
     public static CartesianPoint calcCoords(IScanReflectData scanMeasData)
     {
-        return new CartesianPoint(calcX(scanMeasData), calcY(scanMeasData), scanMeasData.getRSSIValue());
+        return new CartesianPoint(calcX(scanMeasData), calcY(scanMeasData));
     }
 
     /**
