@@ -23,8 +23,8 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TiM55xServiceTest {
-    private static final Logger LOGGER = LogManager.getLogger(TiM55xServiceTest.class);
+public class TiM55xServiceIntegrationTest {
+    private static final Logger LOGGER = LogManager.getLogger(TiM55xServiceIntegrationTest.class);
     private LidarServiceContract lidarServiceContract;
     private static GatewayClient gatewayClient;
     private static TiM55xService tiM55xService;
@@ -61,6 +61,8 @@ public class TiM55xServiceTest {
         try {
             // Embedded Broker
             LOGGER.info("Starting Embedded Broker...");
+            // https://github.com/andsel/moquette/blob/master/
+            // embedding_moquette/src/main/java/io/moquette/testembedded/EmbeddedLauncher.java
             EmbeddedBrokerLauncher embeddedBrokerLauncher = new EmbeddedBrokerLauncher();
 
             // Mock Hardware
