@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>lidar-2d-edgedetection</artifactId>
+    <artifactId>robocup-2d-edgedetection-service</artifactId>
 
     <dependencies>
         <dependency>
