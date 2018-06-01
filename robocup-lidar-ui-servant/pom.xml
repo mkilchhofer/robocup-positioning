@@ -22,7 +22,7 @@
         </dependency>
         <dependency>
             <groupId>info.kilchhofer.bfh</groupId>
-            <artifactId>lidar-consoleui-service</artifactId>
+            <artifactId>robocup-consoleui-service</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

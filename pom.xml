@@ -9,7 +9,7 @@
     <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
     <modules>
-        <module>lidar-consoleui-service</module>
+        <module>robocup-consoleui-service</module>
         <module>robocup-lidar-service</module>
         <module>robocup-lidar-ui-servant</module>
         <module>robocup-common</module>
