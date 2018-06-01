@@ -20,6 +20,9 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.compilerArgument>-Xlint:all</maven.compiler.compilerArgument>
+        <maven.compiler.showWarnings>true</maven.compiler.showWarnings>
+        <maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
     </properties>
     <repositories>
         <repository>
@@ -59,7 +62,7 @@
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-engine</artifactId>
-                <version>5.1.0</version>
+                <version>5.2.0</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -80,6 +83,8 @@
                 <version>1.1.0</version>
                 <scope>test</scope>
             </dependency>
+
+
 
             <dependency>
                 <groupId>org.eclipse.paho</groupId>
@@ -122,6 +127,60 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-assembly-plugin</artifactId>
                     <version>3.1.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>2.21.0</version>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.junit.platform</groupId>
+                            <artifactId>junit-platform-surefire-provider</artifactId>
+                            <version>1.2.0</version>
+                        </dependency>
+                    </dependencies>
+                    <configuration>
+                        <!-- Skip the default running of this plug-in (or everything is run twice...see below) -->
+                        <skip>true</skip>
+                        <!-- Show 100% of the lines from the stack trace (doesn't work) -->
+                        <trimStackTrace>false</trimStackTrace>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>unit-tests</id>
+                            <phase>test</phase>
+                            <goals>
+                                <goal>test</goal>
+                            </goals>
+                            <configuration>
+                                <!-- Never skip running the tests when the test phase is invoked -->
+                                <skip>false</skip>
+                                <includes>
+                                    <!-- Include unit tests within integration-test phase. -->
+                                    <include>**/*Tests.java</include>
+                                </includes>
+                                <excludes>
+                                    <!-- Exclude integration tests within (unit) test phase. -->
+                                    <exclude>**/*IntegrationTests.java</exclude>
+                                </excludes>
+                            </configuration>
+                        </execution>
+                        <execution>
+                            <id>integration-tests</id>
+                            <phase>integration-test</phase>
+                            <goals>
+                                <goal>test</goal>
+                            </goals>
+                            <configuration>
+                                <!-- Never skip running the tests when the integration-test phase is invoked -->
+                                <skip>false</skip>
+                                <includes>
+                                    <!-- Include integration tests within integration-test phase. -->
+                                    <include>**/*IntegrationTests.java</include>
+                                </includes>
+                            </configuration>
+                        </execution>
+                    </executions>
                 </plugin>
             </plugins>
         </pluginManagement>

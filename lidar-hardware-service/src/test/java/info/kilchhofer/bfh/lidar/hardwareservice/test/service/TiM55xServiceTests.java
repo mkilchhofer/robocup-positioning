@@ -1,15 +1,17 @@
-package info.kilchhofer.bfh.lidar.hardwareservice;
+package info.kilchhofer.bfh.lidar.hardwareservice.test.service;
 
 import ch.quantasy.mqtt.gateway.client.ConnectionStatus;
 import ch.quantasy.mqtt.gateway.client.GatewayClient;
 import ch.quantasy.mqtt.gateway.client.message.MessageReceiver;
 import info.kilchhofer.bfh.lidar.hardware.mock.HardwareMock;
+import info.kilchhofer.bfh.lidar.hardwareservice.TiM55xService;
 import info.kilchhofer.bfh.lidar.hardwareservice.contract.LidarServiceContract;
 import info.kilchhofer.bfh.lidar.hardwareservice.contract.status.LidarState;
 import laser.scanner.IScanOperator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.paho.client.mqttv3.MqttException;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,10 +25,9 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TiM55xServiceIntegrationTest {
-    private static final Logger LOGGER = LogManager.getLogger(TiM55xServiceIntegrationTest.class);
-    private LidarServiceContract lidarServiceContract;
-    private static GatewayClient gatewayClient;
+public class TiM55xServiceTests {
+    private static final Logger LOGGER = LogManager.getLogger(TiM55xServiceTests.class);
+    private static GatewayClient<TiM55xServiceTestContract> gatewayClient;
     private static TiM55xService tiM55xService;
     private static URI mqttURI;
     private static String mqttClientName;
@@ -82,7 +83,7 @@ public class TiM55xServiceIntegrationTest {
 
             // GatewayClient
             LOGGER.info("Starting GatewayClient for Testing...");
-            gatewayClient = new GatewayClient<TiM55xServiceTestContract>(mqttURI, mqttClientName, new TiM55xServiceTestContract(instanceName));
+            gatewayClient = new GatewayClient<>(mqttURI, mqttClientName, new TiM55xServiceTestContract(instanceName));
             gatewayClient.connect();
             Thread.sleep(1000);
 
@@ -129,13 +130,13 @@ public class TiM55xServiceIntegrationTest {
             @Override
             public void messageReceived(String topic, byte[] payload) throws Exception {
                 LOGGER.trace("Payload: " + new String(payload));
-                resultConnectionStatus = (ConnectionStatus) gatewayClient.toMessageSet(payload, ConnectionStatus.class).last();
+                resultConnectionStatus = gatewayClient.toMessageSet(payload, ConnectionStatus.class).last();
                 latch.countDown();
             }
         };
 
         this.gatewayClient.subscribe(tempLidarServiceContract.STATUS_CONNECTION, messageReceiver);
-        latch.await(100, TimeUnit.SECONDS);
+        latch.await(15, TimeUnit.SECONDS);
         assertEquals("online", resultConnectionStatus.value);
     }
 
@@ -143,16 +144,31 @@ public class TiM55xServiceIntegrationTest {
     @DisplayName("Subscription to Sensor State Topic")
     public void subscribeState() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
+        LOGGER.info("subscribing to Lidar Service Topic '{}' ...", tempLidarServiceContract.STATUS_STATE);
 
-        // Subscribe to hardware status
-        gatewayClient.subscribe(tempLidarServiceContract.STATUS_STATE, (statusTopic, statusPayload) -> {
-            LOGGER.trace("STATUS_STATE Payload: " + statusPayload);
-            resultLidarState = (LidarState) gatewayClient.toMessageSet(statusPayload, LidarState.class).last();
-            LOGGER.info("subscribeState: {}", resultLidarState);
-            latch.countDown();
-        });
-        latch.await(100, TimeUnit.SECONDS);
+        MessageReceiver messageReceiver = new MessageReceiver() {
+            @Override
+            public void messageReceived(String topic, byte[] payload) throws Exception {
+                LOGGER.trace("STATUS_STATE Payload: " + payload);
+                resultLidarState = gatewayClient.toMessageSet(payload, LidarState.class).last();
+                LOGGER.info("subscribeState: {}", resultLidarState);
+                latch.countDown();
+            }
+        };
+
+        gatewayClient.subscribe(tempLidarServiceContract.STATUS_STATE, messageReceiver);
+        latch.await(15, TimeUnit.SECONDS);
         assertEquals(IScanOperator.State.STANDBY, resultLidarState.state);
     }
 
+    @AfterAll
+    public static void teardown(){
+        try{
+            LOGGER.trace("Starting Teardown");
+            gatewayClient.disconnect();
+            LOGGER.trace("gatewayClient.disconnect() done");
+        } catch (Exception e){
+            fail("Exception occured during Teardown.");
+        }
+    }
 }

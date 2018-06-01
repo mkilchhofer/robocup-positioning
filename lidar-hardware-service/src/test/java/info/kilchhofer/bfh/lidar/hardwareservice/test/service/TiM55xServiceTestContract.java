@@ -1,4 +1,4 @@
-package info.kilchhofer.bfh.lidar.hardwareservice;
+package info.kilchhofer.bfh.lidar.hardwareservice.test.service;
 
 import ch.quantasy.mqtt.gateway.client.contract.AyamlServiceContract;
 import ch.quantasy.mqtt.gateway.client.message.Message;

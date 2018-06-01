@@ -13,7 +13,7 @@
  *
  * You may elect to redistribute this code under either of these licenses.
  */
-package info.kilchhofer.bfh.lidar.hardwareservice;
+package info.kilchhofer.bfh.lidar.hardwareservice.test.service;
 
 import io.moquette.server.Server;
 import io.moquette.server.config.ClasspathResourceLoader;
