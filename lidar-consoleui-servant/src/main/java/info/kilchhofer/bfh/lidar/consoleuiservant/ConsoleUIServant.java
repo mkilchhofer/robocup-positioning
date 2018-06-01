@@ -28,14 +28,14 @@ public class ConsoleUIServant {
     private static final Logger LOGGER = LogManager.getLogger(ConsoleUIServant.class);
     private LidarServiceContract lidarServiceContract;
     private Set<ConsoleUIServiceContract> consoleUIServiceInstances;
-    private GatewayClient gatewayClient;
+    private final GatewayClient<ConsoleUIServantContract> gatewayClient;
 
     // Do not hardcode topics for autodetect service instances
     private final ConsoleUIServiceContract allConsoleUIContracts = new ConsoleUIServiceContract("+");
     private final LidarServiceContract tempLidarServiceContract = new LidarServiceContract("+");
 
     public ConsoleUIServant(URI mqttURI, String mqttClientName, String instanceName) throws MqttException {
-        this.gatewayClient = new GatewayClient<ConsoleUIServantContract>(mqttURI, mqttClientName, new ConsoleUIServantContract(instanceName));
+        this.gatewayClient = new GatewayClient<>(mqttURI, mqttClientName, new ConsoleUIServantContract(instanceName));
         this.consoleUIServiceInstances = new HashSet<>();
         this.gatewayClient.connect();
 
@@ -47,7 +47,7 @@ public class ConsoleUIServant {
         // Subscribe to all console UI instances
         this.gatewayClient.subscribe(allConsoleUIContracts.STATUS_CONNECTION, (topic, payload) -> {
             LOGGER.trace("Payload: " + new String(payload));
-            ConnectionStatus status = new TreeSet<ConnectionStatus>(gatewayClient.toMessageSet(payload, ConnectionStatus.class)).last();
+            ConnectionStatus status = gatewayClient.toMessageSet(payload, ConnectionStatus.class).last();
             ConsoleUIServiceContract consoleUIServiceContract = new ConsoleUIServiceContract(topic, true);
 
             if (status.value.equals("online")) {
