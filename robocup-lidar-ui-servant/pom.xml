@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>lidar-consoleui-servant</artifactId>
+    <artifactId>robocup-lidar-ui-servant</artifactId>
     <dependencies>
         <dependency>
             <groupId>info.kilchhofer.bfh</groupId>

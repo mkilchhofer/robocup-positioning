@@ -1,2 +1,2 @@
 #!/bin/bash
-java -jar ../lidar-consoleui-servant/target/lidar-consoleui-servant-1.0-SNAPSHOT-jar-with-dependencies.jar
+java -jar ../robocup-lidar-ui-servant/target/robocup-lidar-ui-servant-1.0-SNAPSHOT-jar-with-dependencies.jar

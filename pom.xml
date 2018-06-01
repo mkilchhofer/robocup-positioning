@@ -11,7 +11,7 @@
     <modules>
         <module>lidar-consoleui-service</module>
         <module>robocup-lidar-service</module>
-        <module>lidar-consoleui-servant</module>
+        <module>robocup-lidar-ui-servant</module>
         <module>robocup-common</module>
         <module>robocup-lidar-hwmock</module>
         <module>robocup-2d-edgedetection-service</module>
