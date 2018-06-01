@@ -25,8 +25,8 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TiM55xServiceTests {
-    private static final Logger LOGGER = LogManager.getLogger(TiM55xServiceTests.class);
+public class TiM55xIntegrationTests {
+    private static final Logger LOGGER = LogManager.getLogger(TiM55xIntegrationTests.class);
     private static GatewayClient<TiM55xServiceTestContract> gatewayClient;
     private static TiM55xService tiM55xService;
     private static URI mqttURI;
