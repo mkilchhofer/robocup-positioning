@@ -15,7 +15,7 @@
     <dependencies>
         <dependency>
             <groupId>info.kilchhofer.bfh</groupId>
-            <artifactId>lidar-common</artifactId>
+            <artifactId>robocup-common</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
