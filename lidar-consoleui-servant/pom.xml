@@ -27,7 +27,7 @@
         </dependency>
         <dependency>
             <groupId>info.kilchhofer.bfh</groupId>
-            <artifactId>lidar-hardware-service</artifactId>
+            <artifactId>robocup-lidar-service</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
