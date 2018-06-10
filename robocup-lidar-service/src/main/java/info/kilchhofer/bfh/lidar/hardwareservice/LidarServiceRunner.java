@@ -11,7 +11,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static info.kilchhofer.bfh.lidar.Constants.DEFAULT_BROKER_ADDRESS;
+import static info.kilchhofer.bfh.robocup.common.Constants.DEFAULT_BROKER_ADDRESS;
 
 public class LidarServiceRunner {
     private static final Logger LOGGER = LogManager.getLogger(LidarServiceRunner.class);

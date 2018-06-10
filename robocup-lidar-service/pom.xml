@@ -3,9 +3,9 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>lidar-thesis</artifactId>
+        <artifactId>robocup-positioning</artifactId>
         <groupId>info.kilchhofer.bfh</groupId>
-        <version>1.0-SNAPSHOT</version>
+        <version>${revision}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -18,7 +18,7 @@
             <artifactId>lidar</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.github.mkilchhofer</groupId>
+            <groupId>ch.quantasy</groupId>
             <artifactId>ch.quantasy.mqtt.gateway</artifactId>
         </dependency>
         <dependency>
@@ -28,7 +28,6 @@
         <dependency>
             <groupId>info.kilchhofer.bfh</groupId>
             <artifactId>robocup-common</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>info.kilchhofer.bfh</groupId>
@@ -49,19 +48,6 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.junit.vintage</groupId>
-            <artifactId>junit-vintage-engine</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.platform</groupId>
-            <artifactId>junit-platform-launcher</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.platform</groupId>
-            <artifactId>junit-platform-runner</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>

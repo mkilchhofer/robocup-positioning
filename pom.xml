@@ -2,187 +2,65 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>info.kilchhofer.bfh</groupId>
+        <artifactId>robocup-parent-pom</artifactId>
+        <version>20180608.0</version>
+    </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>info.kilchhofer.bfh</groupId>
-    <artifactId>lidar-thesis</artifactId>
+    <artifactId>robocup-positioning</artifactId>
     <packaging>pom</packaging>
-    <version>1.0-SNAPSHOT</version>
+    <version>${revision}</version>
+
+    <properties>
+        <!--
+            Define revision as fallback, normally defined via evn variable.
+            (eg. MAVEN_OPTS=-Drevision=$(date +%Y%m%d)-SNAPSHOT)
+        -->
+        <revision>1.0-SNAPSHOT</revision>
+        <bintray.repo>robocup</bintray.repo>
+        <bintray.package>robocup-positioning</bintray.package>
+        <bintray.subject>mkilchhofer</bintray.subject>
+    </properties>
+
     <modules>
-        <module>robocup-consoleui-service</module>
         <module>robocup-lidar-service</module>
-        <module>robocup-lidar-ui-servant</module>
-        <module>robocup-common</module>
         <module>robocup-lidar-hwmock</module>
         <module>robocup-2d-edgedetection-service</module>
     </modules>
-    <properties>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.compilerArgument>-Xlint:all</maven.compiler.compilerArgument>
-        <maven.compiler.showWarnings>true</maven.compiler.showWarnings>
-        <maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
-    </properties>
+
     <repositories>
         <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
-        </repository>
-        <repository>
-            <id>bintray</id>
-            <url>https://jcenter.bintray.com</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
+            <id>bintray-mkilchhofer-robocup</id>
+            <url>https://dl.bintray.com/mkilchhofer/robocup</url>
         </repository>
     </repositories>
+
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>com.github.mkilchhofer</groupId>
-                <artifactId>ch.quantasy.mqtt.gateway</artifactId>
-                <version>e5020e94d4</version>
-            </dependency>
+            <!-- external Dependency as it is not open source -->
             <dependency>
                 <groupId>ch.hftm</groupId>
                 <artifactId>lidar</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
-
             <dependency>
-                <groupId>org.junit.jupiter</groupId>
-                <artifactId>junit-jupiter-api</artifactId>
-                <version>5.1.0</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.junit.jupiter</groupId>
-                <artifactId>junit-jupiter-engine</artifactId>
-                <version>5.2.0</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.junit.vintage</groupId>
-                <artifactId>junit-vintage-engine</artifactId>
-                <version>5.1.0</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.junit.platform</groupId>
-                <artifactId>junit-platform-launcher</artifactId>
-                <version>1.1.0</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.junit.platform</groupId>
-                <artifactId>junit-platform-runner</artifactId>
-                <version>1.1.0</version>
-                <scope>test</scope>
-            </dependency>
-
-
-
-            <dependency>
-                <groupId>org.eclipse.paho</groupId>
-                <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
-                <version>1.2.0</version>
-            </dependency>
-            <dependency>
-                <groupId>io.moquette</groupId>
-                <artifactId>moquette-broker</artifactId>
-                <version>0.11</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.googlecode.lanterna</groupId>
-                <artifactId>lanterna</artifactId>
-                <version>3.0.0</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.logging.log4j</groupId>
-                <artifactId>log4j-core</artifactId>
-                <version>2.11.0</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-cli</groupId>
-                <artifactId>commons-cli</artifactId>
-                <version>1.4</version>
+                <groupId>info.kilchhofer.bfh</groupId>
+                <artifactId>robocup-common</artifactId>
+                <version>20180607.2</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
 
     <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-jar-plugin</artifactId>
-                    <version>3.0.2</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-assembly-plugin</artifactId>
-                    <version>3.1.0</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.21.0</version>
-                    <dependencies>
-                        <dependency>
-                            <groupId>org.junit.platform</groupId>
-                            <artifactId>junit-platform-surefire-provider</artifactId>
-                            <version>1.2.0</version>
-                        </dependency>
-                    </dependencies>
-                    <configuration>
-                        <!-- Skip the default running of this plug-in (or everything is run twice...see below) -->
-                        <skip>true</skip>
-                        <!-- Show 100% of the lines from the stack trace (doesn't work) -->
-                        <trimStackTrace>false</trimStackTrace>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <id>unit-tests</id>
-                            <phase>test</phase>
-                            <goals>
-                                <goal>test</goal>
-                            </goals>
-                            <configuration>
-                                <!-- Never skip running the tests when the test phase is invoked -->
-                                <skip>false</skip>
-                                <includes>
-                                    <!-- Include unit tests within integration-test phase. -->
-                                    <include>**/*Tests.java</include>
-                                </includes>
-                                <excludes>
-                                    <!-- Exclude integration tests within (unit) test phase. -->
-                                    <exclude>**/*IntegrationTests.java</exclude>
-                                </excludes>
-                            </configuration>
-                        </execution>
-                        <execution>
-                            <id>integration-tests</id>
-                            <phase>integration-test</phase>
-                            <goals>
-                                <goal>test</goal>
-                            </goals>
-                            <configuration>
-                                <!-- Never skip running the tests when the integration-test phase is invoked -->
-                                <skip>false</skip>
-                                <includes>
-                                    <!-- Include integration tests within integration-test phase. -->
-                                    <include>**/*IntegrationTests.java</include>
-                                </includes>
-                            </configuration>
-                        </execution>
-                    </executions>
-                </plugin>
-            </plugins>
-        </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
     </build>
+
 </project>

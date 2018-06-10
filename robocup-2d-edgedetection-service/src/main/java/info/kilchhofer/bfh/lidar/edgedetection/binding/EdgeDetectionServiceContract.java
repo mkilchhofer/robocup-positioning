@@ -8,7 +8,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.Map;
 
-import static info.kilchhofer.bfh.lidar.Constants.LIDAR_ROOT_CONTEXT;
+import static info.kilchhofer.bfh.robocup.common.Constants.ROBOCUP_ROOT_CONTEXT;
 import info.kilchhofer.bfh.lidar.edgedetection.binding.EdgeDetectionEvent;
 
 public class EdgeDetectionServiceContract extends AyamlServiceContract {
@@ -16,7 +16,7 @@ public class EdgeDetectionServiceContract extends AyamlServiceContract {
     public final String EVENT_EDGE_DETECTED;
 
     public EdgeDetectionServiceContract(String instanceID) {
-        super(LIDAR_ROOT_CONTEXT, "EdgeDetection", instanceID);
+        super(ROBOCUP_ROOT_CONTEXT, "EdgeDetection", instanceID);
         EVENT_EDGE_DETECTED=EVENT+"/"+"detected";
     }
 
