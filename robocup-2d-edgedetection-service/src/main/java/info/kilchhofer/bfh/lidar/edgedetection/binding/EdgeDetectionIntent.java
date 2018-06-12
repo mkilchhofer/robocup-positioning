@@ -17,11 +17,15 @@ public class EdgeDetectionIntent extends AnIntent {
     @NonNull
     @Range(from = 0, to = Integer.MAX_VALUE)
     public int toleranceMax;
+    @NonNull
+    @Range(from = 0, to = Integer.MAX_VALUE)
+    public int minimalRelatedPoints;
 
-    public EdgeDetectionIntent(String id, Set<CartesianPoint> positions, int toleranceMax) {
+    public EdgeDetectionIntent(String id, Set<CartesianPoint> positions, int toleranceMax, int minimalRelatedPoints) {
         this.id = id;
         this.positions = positions;
         this.toleranceMax = toleranceMax;
+        this.minimalRelatedPoints = minimalRelatedPoints;
     }
 
     public EdgeDetectionIntent() {
