@@ -34,7 +34,6 @@ public class EdgeDetectionServiceRunner {
         }
         LOGGER.info(mqttURI + " will be used as broker address.");
 
-        String instanceName = computerName;
-        EdgeDetectionService edgeDetectionService = new EdgeDetectionService(mqttURI, instanceName, instanceName);
+        new EdgeDetectionService(mqttURI, "edgeDetection@" + computerName, "edgeDetection@" + computerName);
     }
 }

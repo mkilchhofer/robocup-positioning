@@ -20,6 +20,17 @@ public class EdgeDetectionServiceContract extends AyamlServiceContract {
         EVENT_EDGE_DETECTED=EVENT+"/"+"detected";
     }
 
+    /**
+     * Trick to extract an Instances of a Service when we subscribe to all instances.
+     * (eg. Foo/Bar/U/+/S/connection)
+     * @param topic
+     * @param isTopic
+     */
+    public EdgeDetectionServiceContract(String topic, boolean isTopic){
+        this(topic.split("/")[3]);
+        LOGGER.trace("Got topic '{}'. Extracted instance '{}'.", topic, topic.split("/")[3]);
+    }
+
     @Override
     public void setMessageTopics(Map<String, Class<? extends Message>> messageTopicMap) {
         messageTopicMap.put(INTENT, EdgeDetectionIntent.class);
