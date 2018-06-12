@@ -29,6 +29,7 @@
         <module>robocup-lidar-service</module>
         <module>robocup-lidar-hwmock</module>
         <module>robocup-2d-edgedetection-service</module>
+        <module>robocup-lidar-edgedetection-servant</module>
     </modules>
 
     <repositories>
