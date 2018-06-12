@@ -17,6 +17,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.URI;
 import java.net.UnknownHostException;
 import java.util.concurrent.CountDownLatch;
@@ -72,9 +73,11 @@ public class TiM55xIntegrationTests {
                 @Override
                 public void run() {
                     try {
-                        new HardwareMock(LIDAR_PORT);
+                        new HardwareMock(LIDAR_PORT, InetAddress.getByName(LIDAR_IP));
                     } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        LOGGER.error("InterruptedException", e);
+                    } catch (UnknownHostException e) {
+                        LOGGER.error("UnknownHostException", e);
                     }
                 }
             };
