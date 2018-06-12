@@ -20,6 +20,10 @@ public class ExtractedLine extends AValidator
     {
         this.relatedPoints = relatedPoints;
     }
+
+    // needed for deserialization
+    public ExtractedLine() {
+    }
     
     public CartesianPoint getStartPoint()
     {

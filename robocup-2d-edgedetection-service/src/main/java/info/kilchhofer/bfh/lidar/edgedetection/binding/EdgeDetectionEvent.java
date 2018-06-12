@@ -19,7 +19,7 @@ public class EdgeDetectionEvent extends AnEvent {
 
     public EdgeDetectionEvent(String id, List<ExtractedLine> positions) {
         this.id=id;
-        this.lines = new ArrayList<>(lines);
+        this.lines = new ArrayList<>(positions);
     }
 
     public EdgeDetectionEvent() {

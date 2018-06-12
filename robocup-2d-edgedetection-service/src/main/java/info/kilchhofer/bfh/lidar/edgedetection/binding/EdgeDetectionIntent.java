@@ -19,6 +19,7 @@ public class EdgeDetectionIntent extends AnIntent {
     public int toleranceMax;
 
     public EdgeDetectionIntent(String id, Set<CartesianPoint> positions, int toleranceMax) {
+        this.id = id;
         this.positions = positions;
         this.toleranceMax = toleranceMax;
     }
