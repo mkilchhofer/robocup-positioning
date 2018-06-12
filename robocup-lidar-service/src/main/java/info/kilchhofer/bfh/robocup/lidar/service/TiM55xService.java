@@ -1,12 +1,9 @@
-package info.kilchhofer.bfh.lidar.hardwareservice;
+package info.kilchhofer.bfh.robocup.lidar.service;
 
 import ch.quantasy.mqtt.gateway.client.GatewayClient;
 import ch.quantasy.mqtt.gateway.client.message.MessageReceiver;
-import info.kilchhofer.bfh.lidar.hardwareservice.contract.LidarServiceContract;
-import info.kilchhofer.bfh.lidar.hardwareservice.contract.event.Measurement;
-import info.kilchhofer.bfh.lidar.hardwareservice.contract.event.LidarMeasurementEvent;
-import info.kilchhofer.bfh.lidar.hardwareservice.contract.intent.LidarIntent;
-import info.kilchhofer.bfh.lidar.hardwareservice.contract.status.LidarState;
+
+import info.kilchhofer.bfh.robocup.lidar.service.binding.*;
 import laser.datahandling.IScanData;
 import laser.datahandling.IScanReflectData;
 import laser.datahandling.scandata.ScanDataFact;
@@ -27,6 +24,7 @@ import org.apache.logging.log4j.Logger;
 public class TiM55xService {
     private IScan lidarSensor;
     private final GatewayClient<LidarServiceContract> gatewayClient;
+    private MessageReceiver intentReceiver;
     private static final Logger LOGGER = LogManager.getLogger(TiM55xService.class);
 
     public TiM55xService(URI mqttURI, String mqttClientName, String instanceName, String lidarIp, int lidarPort) throws MqttException, IOException {
@@ -74,7 +72,7 @@ public class TiM55xService {
             }
         };
 
-        MessageReceiver intentMessageReceiver = new MessageReceiver() {
+        this.intentReceiver = new MessageReceiver() {
             @Override
             public void messageReceived(String topic, byte[] payload) throws Exception {
                 try {
@@ -83,13 +81,13 @@ public class TiM55xService {
                     LOGGER.log(Level.INFO, "{}: Received intent: {} ", instanceName, intent);
 
                     switch (intent.command){
-                        case CONT_MEAS_START:
+                        case START_CONTINUOUS_MEASUREMENT:
                             lidarSensor.startContMeas();
                             break;
-                        case CONT_MEAS_STOP:
+                        case STOP_CONTINUOUS_MEASUREMENT:
                             lidarSensor.stopContMeas();
                             break;
-                        case SINGLE_MEAS:
+                        case SINGLE_MEASUREMENT:
                             lidarSensor.runSingleMeas();
                             break;
                     }
@@ -107,6 +105,6 @@ public class TiM55xService {
         this.lidarSensor = new TiM55x(iScanListener, iScanOperator, lidarIp, lidarPort);
         this.gatewayClient.connect();
 
-        this.gatewayClient.subscribe(gatewayClient.getContract().INTENT + "/#", intentMessageReceiver);
+        this.gatewayClient.subscribe(gatewayClient.getContract().INTENT + "/#", this.intentReceiver);
     }
 }

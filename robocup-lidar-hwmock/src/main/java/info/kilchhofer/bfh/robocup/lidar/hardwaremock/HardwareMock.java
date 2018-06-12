@@ -1,4 +1,4 @@
-package info.kilchhofer.bfh.lidar.hardware.mock;
+package info.kilchhofer.bfh.robocup.lidar.hardwaremock;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

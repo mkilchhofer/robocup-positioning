@@ -1,14 +1,13 @@
-package info.kilchhofer.bfh.lidar.hardwareservice.contract;
+package info.kilchhofer.bfh.robocup.lidar.service.binding;
 
 import ch.quantasy.mqtt.gateway.client.contract.AyamlServiceContract;
 import ch.quantasy.mqtt.gateway.client.message.Message;
-import info.kilchhofer.bfh.lidar.hardwareservice.contract.intent.LidarIntent;
-import info.kilchhofer.bfh.lidar.hardwareservice.contract.event.LidarMeasurementEvent;
-import info.kilchhofer.bfh.lidar.hardwareservice.contract.status.LidarState;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Map;
+
+import static info.kilchhofer.bfh.robocup.common.Constants.ROBOCUP_ROOT_CONTEXT;
 
 public class LidarServiceContract extends AyamlServiceContract {
 
@@ -21,7 +20,7 @@ public class LidarServiceContract extends AyamlServiceContract {
 
 
     public LidarServiceContract(String instanceID) {
-        super("Robocup", "Lidar", instanceID);
+        super(ROBOCUP_ROOT_CONTEXT, "Lidar", instanceID);
 
         STATE = "state";
         MEASUREMENT = "measurement";
@@ -30,6 +29,12 @@ public class LidarServiceContract extends AyamlServiceContract {
         EVENT_MEASUREMENT = EVENT + "/" + MEASUREMENT;
     }
 
+    /**
+     * Trick to extract an Instances of a Service when we subscribe to all instances.
+     * (eg. Foo/Bar/U/+/S/connection)
+     * @param topic
+     * @param isTopic
+     */
     public LidarServiceContract(String topic, boolean isTopic){
         this(topic.split("/")[3]);
         LOGGER.trace("Got topic '{}'. Extracted instance '{}'.", topic, topic.split("/")[3]);

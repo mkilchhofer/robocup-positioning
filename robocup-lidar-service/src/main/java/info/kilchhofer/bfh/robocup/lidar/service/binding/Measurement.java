@@ -1,8 +1,9 @@
-package info.kilchhofer.bfh.lidar.hardwareservice.contract.event;
+package info.kilchhofer.bfh.robocup.lidar.service.binding;
 
+import ch.quantasy.mqtt.gateway.client.message.annotations.AValidator;
 import ch.quantasy.mqtt.gateway.client.message.annotations.Range;
 
-public class Measurement {
+public class Measurement extends AValidator {
     @Range(from = -45, to = 225)
     public int angle;
 

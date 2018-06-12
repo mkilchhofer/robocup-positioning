@@ -1,4 +1,4 @@
-package info.kilchhofer.bfh.lidar.hardwareservice;
+package info.kilchhofer.bfh.robocup.lidar.service;
 
 import org.apache.commons.cli.*;
 import org.apache.logging.log4j.LogManager;
