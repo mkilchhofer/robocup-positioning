@@ -50,7 +50,7 @@
             <dependency>
                 <groupId>info.kilchhofer.bfh</groupId>
                 <artifactId>robocup-common</artifactId>
-                <version>20180607.2</version>
+                <version>20180613.0</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
