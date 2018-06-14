@@ -45,7 +45,7 @@
             <dependency>
                 <groupId>ch.hftm</groupId>
                 <artifactId>lidar</artifactId>
-                <version>1.0-SNAPSHOT</version>
+                <version>20180316.0</version>
             </dependency>
             <dependency>
                 <groupId>info.kilchhofer.bfh</groupId>
