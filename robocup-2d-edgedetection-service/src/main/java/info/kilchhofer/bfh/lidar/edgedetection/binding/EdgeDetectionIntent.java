@@ -6,14 +6,14 @@ import ch.quantasy.mqtt.gateway.client.message.annotations.Range;
 import ch.quantasy.mqtt.gateway.client.message.annotations.StringForm;
 import info.kilchhofer.bfh.lidar.edgedetection.hftm.datahandling.coord.CartesianPoint;
 
-import java.util.Set;
+import java.util.List;
 
 public class EdgeDetectionIntent extends AnIntent {
     @NonNull
     @StringForm
     public String id;
     @NonNull
-    public Set<CartesianPoint> positions;
+    public List<CartesianPoint> positions;
     @NonNull
     @Range(from = 0, to = Integer.MAX_VALUE)
     public int toleranceMax;
@@ -21,7 +21,7 @@ public class EdgeDetectionIntent extends AnIntent {
     @Range(from = 0, to = Integer.MAX_VALUE)
     public int minimalRelatedPoints;
 
-    public EdgeDetectionIntent(String id, Set<CartesianPoint> positions, int toleranceMax, int minimalRelatedPoints) {
+    public EdgeDetectionIntent(String id, List<CartesianPoint> positions, int toleranceMax, int minimalRelatedPoints) {
         this.id = id;
         this.positions = positions;
         this.toleranceMax = toleranceMax;

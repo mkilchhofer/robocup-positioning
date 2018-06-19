@@ -1,18 +1,18 @@
 package info.kilchhofer.bfh.lidar.edgedetection.hftm.datahandling.lineExtraction;
 
 import info.kilchhofer.bfh.lidar.edgedetection.hftm.datahandling.coord.CartesianPoint;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  *
  * @author sdb
  */
 public class LineExtracter {
+    private static final Logger LOGGER = LogManager.getLogger(LineExtracter.class);
 
     private int toleranceMax;
 
@@ -20,9 +20,9 @@ public class LineExtracter {
         this.toleranceMax = toleranceMax;
     }
 
-    public synchronized List<ExtractedLine> extractLines(Set<CartesianPoint> points) {
+    public synchronized List<ExtractedLine> extractLines(List<CartesianPoint> scandatas) {
         List<ExtractedLine> tempResults = new ArrayList<>();
-        List<CartesianPoint> scandatas = new ArrayList<>(points);
+        LOGGER.debug("List size : {}", scandatas.size());
 
         // Douglas Peucker Algorithmus
         // finde Punkt mit grösstem Abstand
@@ -66,24 +66,24 @@ public class LineExtracter {
         if (distanceMax > toleranceMax) {
             // Toleranz überschritten. Scandatas splitten und per Rekursion erneut probieren.
             tempResults.addAll(extractLines(
-                    new HashSet<>(splittScandataArray(
+                    splittScandataArray(
                             0, // start
                             indexOfDistanceMax,
-                            scandatas)))
+                            scandatas))
             );
 
             tempResults.addAll(extractLines(
-                    new HashSet<>(splittScandataArray(
+                    splittScandataArray(
                             indexOfDistanceMax,
                             scandatas.size() - 1, // end
-                            scandatas)))
+                            scandatas))
             );
         } else {
             //System.out.println("3");
             /*System.out.println("Straight found! Support vector"
-                    + " X: " + straight.getSupportVector().getX() 
-                    + " Y: " + straight.getSupportVector().getY() 
-                    + " Z: " + straight.getSupportVector().getZ() 
+                    + " X: " + straight.getSupportVector().getX()
+                    + " Y: " + straight.getSupportVector().getY()
+                    + " Z: " + straight.getSupportVector().getZ()
                     + " Direction vector"
                     + " X: " + straight.getDirectionVector().getX()
                     + " Y: " + straight.getDirectionVector().getY()
@@ -114,8 +114,8 @@ public class LineExtracter {
         this.toleranceMax = toleranceMax;
     }
 
-    public static void main(String[] args) throws IOException {
-        Set<CartesianPoint> datas = new HashSet<>();
+    public static void main(String[] args) {
+        List<CartesianPoint> datas = new ArrayList<>();
         datas.add(new CartesianPoint(-200, 200));
         datas.add(new CartesianPoint(-200, 600));
         datas.add(new CartesianPoint(400, 1200));

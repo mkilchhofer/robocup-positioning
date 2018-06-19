@@ -76,7 +76,7 @@ public class LidarEdgeDetectionServant {
                 Set<LidarMeasurementEvent> lidarMeasurementEvents = gatewayClient.toMessageSet(payload, LidarMeasurementEvent.class);
                 for (LidarMeasurementEvent lidarMeasurementEvent : lidarMeasurementEvents) {
 
-                    Set<CartesianPoint> cartesianPoints = new HashSet<>();
+                    List<CartesianPoint> cartesianPoints = new ArrayList<>();
                     for (Measurement measurement : lidarMeasurementEvent.getMeasurements()) {
 
                         IScanReflectData tempIScanReflectData = new ScanMeasData(measurement.distance, measurement.angle, measurement.rssi);
